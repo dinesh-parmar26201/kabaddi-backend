@@ -1,0 +1,19 @@
+<?php
+
+namespace App\DTO\User;
+
+class UserResponseDTO
+{
+    public static function make($user): array
+    {
+        return [
+            'name' => $user->fullname,
+            'phone' => $user->phone,
+            'fcm_token' => $user->fcm_token,
+            'dateOfBirth' => $user->dob,
+            'state' => $user->state,
+            'country' => $user->country,
+            'photo' => $user->photo,
+        ];
+    }
+}
