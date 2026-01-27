@@ -14,14 +14,13 @@ class UserUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'phone'     => 'required|string|max:10',
-            'dob'       => 'required|date',
+            'name'      => 'required|string|max:255',
+            'phone'     => 'required|numeric|digits:10',
+            'dob'       => 'required|date_format:Y/m/d',
             'state'     => 'required|string|max:255',
             'country'   => 'required|string|max:255',
-            'photo'     => 'nullable|url',
+            'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'fcm_token' => 'nullable|string|max:255',
         ];
     }
 }
-

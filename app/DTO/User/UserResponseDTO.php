@@ -10,10 +10,10 @@ class UserResponseDTO
             'name' => $user->fullname,
             'phone' => $user->phone,
             'fcm_token' => $user->fcm_token,
-            'dateOfBirth' => $user->dob,
+            'dob' => $user->dob,
             'state' => $user->state,
             'country' => $user->country,
-            'photo' => $user->photo,
+            'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ];
     }
 }

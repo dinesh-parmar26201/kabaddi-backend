@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'fullname',
+        'dob',
         'role',
         'phone',
         'state',
@@ -36,5 +37,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [];
+    }
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_user');
+    }
+
+    public function matchPlayers()
+    {
+        return $this->hasMany(MatchPlayer::class);
     }
 }

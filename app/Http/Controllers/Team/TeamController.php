@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http\Controllers\Team;
+
+use App\Models\Team;
+use App\DTO\TeamResponseDTO;
+use App\Http\Controllers\Controller;
+use App\Services\Team\TeamServiceInterface;
+use App\Http\Requests\Team\StoreTeamRequest;
+use App\Http\Requests\Team\UpdateTeamRequest;
+use App\Http\Requests\Team\AddPlayerToTeamRequest;
+
+class TeamController extends Controller
+{
+    public function __construct(
+        private TeamServiceInterface $teamService
+    ) {}
+
+    public function index()
+    {
+        $teams = $this->teamService->list();
+
+        return response()->json([
+            'message' => 'Teams retrieved successfully',
+            'data' => TeamResponseDTO::collection($teams)
+        ]);
+    }
+
+    public function store(StoreTeamRequest $request)
+    {
+        $team = $this->teamService->create($request);
+
+        return response()->json(
+            [
+                'message' => 'Team created successfully',
+                'data' => TeamResponseDTO::fromModel($team)
+            ],
+            201
+        );
+    }
+
+    public function update(UpdateTeamRequest $request, int $id)
+    {
+        $team = $this->teamService->update($id, $request);
+
+        return response()->json([
+            'message' => 'Team updated successfully',
+            'data' => TeamResponseDTO::fromModel($team)
+        ]);
+    }
+
+    public function destroy(int $id)
+    {
+        $this->teamService->delete($id);
+
+        return response()->json([
+            'message' => 'Team deleted successfully'
+        ]);
+    }
+
+    public function addPlayer(AddPlayerToTeamRequest $request, int $id)
+    {
+        $team = Team::findOrFail($id);
+
+        $this->teamService->addPlayer($team->id, $request);
+
+        return response()->json([
+            'message' => 'Players added successfully',
+            'data' => TeamResponseDTO::fromModel($team)
+        ]);
+    }
+}

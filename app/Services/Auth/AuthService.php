@@ -3,6 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
 
 class AuthService implements AuthServiceInterface
@@ -22,5 +23,15 @@ class AuthService implements AuthServiceInterface
             'user' => $user,
             'token' => $user->createToken('mobile-auth')->accessToken,
         ];
+    }
+
+    public function logout(): void
+    {
+        $user = Auth::user();
+        if ($user) {
+            $user->tokens->each(function ($token) {
+                $token->delete();
+            });
+        }
     }
 }
