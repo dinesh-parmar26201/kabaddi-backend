@@ -29,6 +29,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('{id}', [TournamentController::class, 'show']);
         Route::post('{id}', [TournamentController::class, 'update']);
         Route::delete('{id}', [TournamentController::class, 'destroy']);
+        Route::post('{id}/teams',[TournamentController::class, 'addTeams']);
     });
 
     Route::prefix('matches')->group(function () {

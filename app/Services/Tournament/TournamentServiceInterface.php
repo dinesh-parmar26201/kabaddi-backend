@@ -13,5 +13,6 @@ interface TournamentServiceInterface
     public function delete(int $id): void;
     public function find(int $id);
     public function list();
+    public function addTeams(int $tournamentId, array $teamIds);
 }
 

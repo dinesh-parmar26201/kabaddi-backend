@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Tournament\TournamentServiceInterface;
 use App\Http\Requests\Tournament\StoreTournamentRequest;
 use App\Http\Requests\Tournament\UpdateTournamentRequest;
+use App\Http\Requests\Tournament\AddTournamentTeamsRequest;
 
 class TournamentController extends Controller
 {
@@ -36,10 +37,11 @@ class TournamentController extends Controller
     {
         $tournaments = $this->service->list();
 
-        return response()->json([
-            'message' => 'Tournaments retrieved successfully',
-            'data' => TournamentResponseDTO::collection($tournaments)
-        ]
+        return response()->json(
+            [
+                'message' => 'Tournaments retrieved successfully',
+                'data' => TournamentResponseDTO::collection($tournaments)
+            ]
         );
     }
 
@@ -56,5 +58,18 @@ class TournamentController extends Controller
     {
         $this->service->delete($id);
         return response()->json(['message' => 'Tournament deleted']);
+    }
+
+    public function addTeams(AddTournamentTeamsRequest $request, $id)
+    {
+        $tournament = $this->service->addTeams(
+            $id,
+            $request->team_ids
+        );
+
+        return response()->json([
+            'tournament_id' => $tournament->id,
+            'teams' => $tournament->teams
+        ]);
     }
 }

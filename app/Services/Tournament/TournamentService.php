@@ -40,7 +40,7 @@ class TournamentService implements TournamentServiceInterface
 
     public function update(int $id, UpdateTournamentRequest $request)
     {
-        try{
+        try {
             $tournament = Tournament::findOrFail($id);
 
             if (isset($request->banner) && $request->hasFile('banner')) {
@@ -70,7 +70,7 @@ class TournamentService implements TournamentServiceInterface
                 'status' => $request->input('status'),
             ]);
             return $tournament;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -88,5 +88,14 @@ class TournamentService implements TournamentServiceInterface
     public function list()
     {
         return Tournament::latest()->get();
+    }
+
+    public function addTeams(int $tournamentId, array $teamIds)
+    {
+        $tournament = Tournament::findOrFail($tournamentId);
+
+        $tournament->teams()->syncWithoutDetaching($teamIds);
+
+        return $tournament->load('teams');
     }
 }
