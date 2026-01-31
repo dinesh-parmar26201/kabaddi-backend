@@ -17,6 +17,8 @@ class AuthResponseDTO
                 'fcm_token' => $user->fcm_token,
                 'dateOfBirth' => $user->dob,
                 'state' => $user->state,
+                'city' => $user->city,
+                'role' => $user->role,
                 'country' => $user->country,
                 'photo' => $user->photo,
             ],
