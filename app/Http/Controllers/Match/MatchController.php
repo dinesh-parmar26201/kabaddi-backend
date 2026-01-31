@@ -18,10 +18,13 @@ class MatchController extends Controller
 
     public function store(CreateMatchRequest $request)
     {
-        $match = $this->matchService->create($request->validated());
+        $match = $this->matchService->create($request);
 
         return response()->json(
-            MatchResponseDTO::fromModel($match)
+            [
+                "message" => "Match created successfully",
+                "data" => MatchResponseDTO::fromModel($match, ['teams'])
+            ]
         );
     }
 
@@ -30,7 +33,10 @@ class MatchController extends Controller
         $match = $this->matchService->update($id, $request->validated());
 
         return response()->json(
-            MatchResponseDTO::fromModel($match)
+            [
+                "message" => "Match updated successfully",
+                "data" => MatchResponseDTO::fromModel($match)
+            ]
         );
     }
 

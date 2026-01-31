@@ -9,16 +9,23 @@ class CreateMatchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'team_a_id' => 'required',
-            'team_b_id' => 'required',
-            'start_date' => 'nullable',
-            'start_time' => 'nullable',
-            'end_time' => 'nullable',
+            'teams' => 'required|array',
+            'teams.*.id' => 'required|exists:teams,id',
+            'teams.*.tshirt_color' => 'nullable|string',
+            'tournament_id' => 'nullable|exists:tournaments,id',
+            'start_date' => 'nullable|date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i',
             'venue' => 'nullable',
             'ground_name' => 'nullable',
             'organizer_phone' => 'nullable',
             'organizer_email' => 'nullable',
-            'teams' => 'nullable|array',
+            'status' => 'nullable|string',
         ];
+    }
+
+    public function getTeams(): array
+    {
+        return $this->input('teams', []);
     }
 }

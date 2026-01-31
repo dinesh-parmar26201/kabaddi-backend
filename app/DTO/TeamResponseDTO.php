@@ -7,9 +7,9 @@ use App\DTO\User\UserResponseDTO;
 
 class TeamResponseDTO
 {
-    public static function fromModel(Team $team): array
+    public static function fromModel(Team $team, array $includes = []): array
     {
-        return [
+        $data = [
             'id'         => $team->id,
             'name'       => $team->name,
             'logo'       => $team->logo ? asset('storage/' . $team->logo) : null,
@@ -17,6 +17,11 @@ class TeamResponseDTO
             'player_count' => $team->getPlayerCount(),
             'captain'    => $team->captain() ? UserResponseDTO::make($team->captain()) : null,
         ];
+
+        if (in_array('players', $includes)) {
+            $data['players'] = UserResponseDTO::collection($team->players);
+        }
+        return $data;
     }
 
     public static function collection(iterable $teams): array
@@ -30,4 +35,6 @@ class TeamResponseDTO
     {
         return self::fromModel($team);
     }
+
+
 }
