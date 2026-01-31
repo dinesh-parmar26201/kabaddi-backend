@@ -3,6 +3,7 @@
 namespace App\DTO;
 
 use App\Models\Tournament;
+use App\DTO\User\UserResponseDTO;
 
 class TournamentResponseDTO
 {
@@ -13,13 +14,20 @@ class TournamentResponseDTO
             'name' => $tournament->name,
             'banner' => $tournament->banner ? asset('storage/' . $tournament->banner) : null,
             'ground' => $tournament->ground,
-            'organizer_name' => $tournament->organizer_name,
-            'organizer_phone' => $tournament->organizer_phone,
-            'organizer_email' => $tournament->organizer_email,
+            'organizer' => [
+                'name' => $tournament->organizer_name,
+                'phone' => $tournament->organizer_phone,
+                'email' => $tournament->organizer_email,
+            ],
             'city' => $tournament->city,
             'start_date' => $tournament->start_date,
             'end_date' => $tournament->end_date,
+            'category' => $tournament->category,
             'status' => $tournament->status,
+            'created_by' => UserResponseDTO::fromModel($tournament->creator),
+            'teams' => $tournament->teams->map(function ($team) {
+                return TeamResponseDTO::fromModel($team);
+            })->toArray(),
         ];
     }
 

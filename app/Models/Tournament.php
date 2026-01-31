@@ -30,4 +30,9 @@ class Tournament extends Model
     {
         return $this->hasMany(GameMatch::class, 'tournament_id');
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

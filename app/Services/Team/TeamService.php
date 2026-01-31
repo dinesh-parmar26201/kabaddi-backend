@@ -4,6 +4,7 @@ namespace App\Services\Team;
 
 use Exception;
 use App\Models\Team;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
@@ -12,7 +13,7 @@ class TeamService implements TeamServiceInterface
 {
     public function list(): iterable
     {
-        return Team::latest()->get();
+        return Team::where('created_by', Auth::id())->latest()->get();
     }
 
     public function create($request): Team
@@ -29,8 +30,8 @@ class TeamService implements TeamServiceInterface
                 'name' => $request->input('name'),
                 'city' => $request->input('city'),
                 'logo' => $path ?? null,
+                'created_by' => Auth::id(),
             ]);
-
             return $team;
         } catch (Exception $e) {
             throw $e;
@@ -100,7 +101,7 @@ class TeamService implements TeamServiceInterface
         if ($isCaptain) {
             $currentCaptain = $team->allPlayers()->wherePivot('is_captain', true)->first();
             if ($currentCaptain) {
-            $team->allPlayers()->updateExistingPivot($currentCaptain->id, ['is_captain' => false]);
+                $team->allPlayers()->updateExistingPivot($currentCaptain->id, ['is_captain' => false]);
             }
         }
 
@@ -110,11 +111,8 @@ class TeamService implements TeamServiceInterface
             // Update existing player record
             $team->allPlayers()->updateExistingPivot($request->player_id, ['is_captain' => $isCaptain]);
         } else {
-            // Add new player only if not exists
-
-
-        // Attach the new player
-        $team->allPlayers()->attach($request->player_id, ['is_captain' => $isCaptain]);
+            // Attach the new player
+            $team->allPlayers()->attach($request->player_id, ['is_captain' => $isCaptain]);
         }
     }
 }

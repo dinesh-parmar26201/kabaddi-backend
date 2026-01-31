@@ -2,6 +2,8 @@
 
 namespace App\DTO\Auth;
 
+use App\DTO\User\UserResponseDTO;
+
 class AuthResponseDTO
 {
     public static function make(array $data): array
@@ -11,15 +13,7 @@ class AuthResponseDTO
 
         return [
             'access_token' => $token,
-            'user' => [
-                'name' => $user->fullname,
-                'phone' => $user->phone,
-                'fcm_token' => $user->fcm_token,
-                'dateOfBirth' => $user->dob,
-                'state' => $user->state,
-                'country' => $user->country,
-                'photo' => $user->photo,
-            ],
+            'user' => UserResponseDTO::make($user),
             'is_new' => is_null($user->name),
         ];
     }

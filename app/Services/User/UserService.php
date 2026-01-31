@@ -18,6 +18,8 @@ class UserService implements UserServiceInterface
                 'phone'     => $request->phone,
                 'dob'       => $request->dob,
                 'state'     => $request->state,
+                'city'      => $request->city,
+                'role'      => $request->role,
                 'country'   => $request->country,
                 'fcm_token' => $request->fcm_token,
             ];

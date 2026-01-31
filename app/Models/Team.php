@@ -13,6 +13,11 @@ class Team extends Model
         'created_by',
     ];
 
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function players()
     {
         return $this->belongsToMany(User::class, 'team_user')->wherePivot('is_captain', false);

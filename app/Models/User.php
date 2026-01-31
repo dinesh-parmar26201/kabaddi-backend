@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role',
         'phone',
         'state',
+        'city',
         'country',
         'photo',
         'fcm_token',

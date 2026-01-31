@@ -9,9 +9,12 @@ use App\Services\Team\TeamServiceInterface;
 use App\Http\Requests\Team\StoreTeamRequest;
 use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TeamController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         private TeamServiceInterface $teamService
     ) {}
@@ -28,6 +31,8 @@ class TeamController extends Controller
 
     public function store(StoreTeamRequest $request)
     {
+        $this->authorize('create', Team::class);
+
         $team = $this->teamService->create($request);
 
         return response()->json(
@@ -41,6 +46,9 @@ class TeamController extends Controller
 
     public function update(UpdateTeamRequest $request, int $id)
     {
+        $team = Team::findOrFail($id);
+        $this->authorize('update', $team);
+
         $team = $this->teamService->update($id, $request);
 
         return response()->json([
@@ -51,6 +59,9 @@ class TeamController extends Controller
 
     public function destroy(int $id)
     {
+        $team = Team::findOrFail($id);
+        $this->authorize('delete', $team);
+
         $this->teamService->delete($id);
 
         return response()->json([
@@ -61,6 +72,7 @@ class TeamController extends Controller
     public function addPlayer(AddPlayerToTeamRequest $request, int $id)
     {
         $team = Team::findOrFail($id);
+        $this->authorize('addPlayer', $team);
 
         $this->teamService->addPlayer($team->id, $request);
 
