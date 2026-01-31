@@ -43,4 +43,16 @@ class UserService implements UserServiceInterface
     {
         return $request->user();
     }
+
+    public function search($request)
+    {
+        $searchTerm = $request->getSearch();
+
+        return User::where('fullname', 'LIKE', '%' . $searchTerm . '%')
+            ->orWhere('phone', 'LIKE', '%' . $searchTerm . '%')
+            ->orWhere('city', 'LIKE', '%' . $searchTerm . '%')
+            ->orWhere('state', 'LIKE', '%' . $searchTerm . '%')
+            ->orWhere('country', 'LIKE', '%' . $searchTerm . '%')
+            ->get();
+    }
 }

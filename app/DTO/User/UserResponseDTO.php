@@ -24,4 +24,9 @@ class UserResponseDTO
     {
         return self::make($user);
     }
+
+    public static function collection($users): array
+    {
+        return array_map(fn($user) => self::make($user), $users->all());
+    }
 }

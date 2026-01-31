@@ -13,6 +13,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('players')->group(function () {
         Route::post('update', [UserController::class, 'update']);
         Route::get('profile', [UserController::class, 'profile']);
+        Route::post('search', [UserController::class, 'search']);
     });
 
     Route::prefix('team')->group(function () {
