@@ -3,6 +3,7 @@
 namespace App\DTO;
 
 use App\Models\Team;
+use App\DTO\User\UserResponseDTO;
 
 class TeamResponseDTO
 {
@@ -14,7 +15,7 @@ class TeamResponseDTO
             'logo'       => $team->logo ? asset('storage/' . $team->logo) : null,
             'city'       => $team->city,
             'player_count' => $team->getPlayerCount(),
-            'captain'    => $team->captain()?->only(['id', 'fullname', 'dob', 'role', 'phone', 'state', 'country', 'photo']),
+            'captain'    => UserResponseDTO::make($team->captain()),
         ];
     }
 
