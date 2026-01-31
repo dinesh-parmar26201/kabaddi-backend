@@ -15,7 +15,7 @@ class TeamResponseDTO
             'logo'       => $team->logo ? asset('storage/' . $team->logo) : null,
             'city'       => $team->city,
             'player_count' => $team->getPlayerCount(),
-            'captain'    => UserResponseDTO::make($team->captain()),
+            'captain'    => $team->captain() ? UserResponseDTO::make($team->captain()) : null,
         ];
     }
 

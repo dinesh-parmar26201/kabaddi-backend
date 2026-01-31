@@ -4,15 +4,17 @@ namespace App\Services\Team;
 
 use Exception;
 use App\Models\Team;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Team\UpdateTeamRequest;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
 
 class TeamService implements TeamServiceInterface
 {
     public function list(): iterable
     {
-        return Team::latest()->get();
+        return Team::where('created_by', Auth::id())->latest()->get();
     }
 
     public function create($request): Team
@@ -29,8 +31,9 @@ class TeamService implements TeamServiceInterface
                 'name' => $request->input('name'),
                 'city' => $request->input('city'),
                 'logo' => $path ?? null,
+                'created_by' => Auth::id(),
             ]);
-
+            FacadesLog::info('Team created: ' , ['team_id' => $team]);
             return $team;
         } catch (Exception $e) {
             throw $e;
