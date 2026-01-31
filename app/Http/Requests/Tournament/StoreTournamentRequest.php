@@ -10,7 +10,7 @@ class StoreTournamentRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
-            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'organizer_name' => 'nullable|string',
             'organizer_phone' => 'nullable|string',
             'organizer_email' => 'nullable|string',

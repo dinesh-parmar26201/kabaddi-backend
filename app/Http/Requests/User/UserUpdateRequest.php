@@ -19,7 +19,7 @@ class UserUpdateRequest extends FormRequest
             'dob'       => 'required|date_format:Y/m/d',
             'state'     => 'required|string|max:255',
             'country'   => 'required|string|max:255',
-            'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'fcm_token' => 'nullable|string|max:255',
         ];
     }

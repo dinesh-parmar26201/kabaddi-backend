@@ -11,7 +11,7 @@ class StoreTeamRequest extends FormRequest
     {
         return [
             'name'       => 'required|string',
-            'logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'city'       => 'nullable|string',
         ];
     }

@@ -11,7 +11,7 @@ class UpdateTeamRequest extends FormRequest
     {
         return [
             'name'       => 'sometimes|string',
-            'logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'city'       => 'nullable|string',
             'players' => 'nullable|array',
             'players.*.id' => 'exists:users,id|distinct',
