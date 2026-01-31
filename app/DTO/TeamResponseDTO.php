@@ -25,4 +25,9 @@ class TeamResponseDTO
             ->map(fn($team) => self::fromModel($team))
             ->toArray();
     }
+
+    public static function make($team): array
+    {
+        return self::fromModel($team);
+    }
 }

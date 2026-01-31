@@ -26,7 +26,7 @@ class UserController extends Controller
     public function profile(Request $request)
     {
         $result = $this->userService->profile($request);
-        $response = UserResponseDTO::make($result);
+        $response = UserResponseDTO::make($result,['teams']);
 
         return response()->json(["message" => "Profile retrieved successfully", "data" => $response]);
     }
@@ -39,7 +39,7 @@ class UserController extends Controller
         if (empty($response)) {
             return response()->json(["message" => "No users found", "data" => []]);
         }
-        
+
         return response()->json(["message" => "Users retrieved successfully", "data" => $response]);
     }
 }
