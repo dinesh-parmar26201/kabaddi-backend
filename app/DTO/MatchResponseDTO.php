@@ -33,8 +33,22 @@ class MatchResponseDTO
 
     public static function teams(GameMatch $match)
     {
-        return $match->teams->map(function ($team) {
-            return TeamResponseDTO::fromModel($team->team);
+        return $match->teams->map(function ($team) use ($match) {
+            return MatchTeamResponseDTO::fromModel($team->team, $match, $team);
         });
+    }
+
+    public static function fromModels($matches, array $includes = []): array
+    {
+        return $matches->map(function ($match) use ($includes) {
+            return self::fromModel($match, $includes);
+        })->toArray();
+    }
+
+    public static function collection(iterable $matches, array $includes = []): array
+    {
+        return collect($matches)
+            ->map(fn($match) => self::fromModel($match, $includes))
+            ->toArray();
     }
 }

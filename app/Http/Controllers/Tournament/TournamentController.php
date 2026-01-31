@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tournament;
 
 use App\Models\Tournament;
+use App\DTO\TeamResponseDTO;
+use App\DTO\MatchResponseDTO;
 use App\DTO\TournamentResponseDTO;
 use App\Http\Controllers\Controller;
 use App\Services\Tournament\TournamentServiceInterface;
@@ -93,6 +95,31 @@ class TournamentController extends Controller
         return response()->json([
             'message' => 'Teams added to tournament successfully',
             'data' => TournamentResponseDTO::fromModel($tournament)
+        ]);
+    }
+
+    public function getTeams($id)
+    {
+        $this->authorize('view', Tournament::class);
+
+        $teams = $this->service->getTeams($id);
+
+        return response()->json([
+            'message' => 'Tournament teams retrieved successfully',
+            'data' => TeamResponseDTO::fromModels($teams)
+        ]);
+    }
+
+    public function getMatches($id)
+    {
+        $this->authorize('view', Tournament::class);
+
+        $tournament = Tournament::findOrFail($id);
+        $matches = $tournament->matches()->get();
+
+        return response()->json([
+            'message' => 'Tournament matches retrieved successfully',
+            'data' => MatchResponseDTO::fromModels($matches)
         ]);
     }
 }

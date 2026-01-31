@@ -1,6 +1,5 @@
 <?php
 
-use Termwind\Components\Raw;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Team\TeamController;
@@ -24,6 +23,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('{id}', [TeamController::class, 'show']);
         Route::delete('{id}', [TeamController::class, 'destroy']);
         Route::post('{id}/add-player', [TeamController::class, 'addPlayer']);
+        Route::get('{id}/matches', [TeamController::class, 'matches']);
     });
 
     Route::prefix('tournament')->group(function () {
@@ -33,15 +33,19 @@ Route::middleware('auth:api')->group(function () {
         Route::post('{id}', [TournamentController::class, 'update']);
         Route::delete('{id}', [TournamentController::class, 'destroy']);
         Route::post('{id}/teams',[TournamentController::class, 'addTeams']);
+        Route::get('{id}/teams',[TournamentController::class, 'getTeams']);
+        Route::get('{id}/matches',[TournamentController::class, 'getMatches']);
     });
 
     Route::prefix('match')->group(function () {
-        // Route::get('', [MatchController::class, 'index']);
+        Route::get('list', [MatchController::class, 'index']);
         Route::post('', [MatchController::class, 'store']);
         Route::get('{id}', [MatchController::class, 'show']);
         Route::post('{id}', [MatchController::class, 'update']);
         Route::delete('{id}', [MatchController::class, 'destroy']);
         Route::post('{id}/toss', [MatchController::class, 'toss']);
+        Route::post('{id}/team-players', [MatchController::class, 'updateTeamPlayers']);
+        Route::post('{id}/team-court', [MatchController::class, 'updateTeamCourt']);
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

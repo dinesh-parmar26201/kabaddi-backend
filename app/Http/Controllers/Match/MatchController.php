@@ -9,6 +9,8 @@ use App\Http\Requests\Match\TossRequest;
 use App\Services\Match\MatchServiceInterface;
 use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchRequest;
+use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
+use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
 
 class MatchController extends Controller
 {
@@ -43,16 +45,25 @@ class MatchController extends Controller
     public function index(Request $request)
     {
         return response()->json(
-            $this->matchService->list($request->all())
+            [
+                'message' => 'Match list fetched successfully',
+                'data' => MatchResponseDTO::fromModels(
+                    $this->matchService->list()
+                )
+            ]
         );
     }
 
     public function show(int $id)
     {
         return response()->json(
-            MatchResponseDTO::fromModel(
-                $this->matchService->detail($id)
-            )
+            [
+                'message' => 'Match details fetched successfully',
+                'data' =>
+                MatchResponseDTO::fromModel(
+                    $this->matchService->detail($id), ['teams']
+                )
+            ]
         );
     }
 
@@ -66,6 +77,30 @@ class MatchController extends Controller
     {
         return response()->json(
             $this->matchService->toss($id, $request->validated())
+        );
+    }
+
+    public function updateTeamPlayers(UpdateMatchTeamPlayersRequest $request, int $id)
+    {
+        $match = $this->matchService->updateTeamPlayers($request, $id);
+
+        return response()->json(
+            [
+                "message" => "Match team players updated successfully",
+                "data" => MatchResponseDTO::fromModel($match, ['teams'])
+            ]
+        );
+    }
+
+    public function updateTeamCourt(UpdateMatchTeamCourtRequest $request, int $id)
+    {
+        $match = $this->matchService->updateTeamCourt($request, $id);
+
+        return response()->json(
+            [
+                "message" => "Match team court updated successfully",
+                "data" => MatchResponseDTO::fromModel($match, ['teams'])
+            ]
         );
     }
 }

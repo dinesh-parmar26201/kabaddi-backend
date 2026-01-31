@@ -38,4 +38,9 @@ class GameMatch extends Model
     {
         return $this->hasMany(Raid::class, 'match_id');
     }
+
+    public function matchPlayers()
+    {
+        return $this->hasMany(MatchPlayer::class, 'match_id');
+    }
 }

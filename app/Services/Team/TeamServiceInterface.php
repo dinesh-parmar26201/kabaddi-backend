@@ -18,4 +18,6 @@ interface TeamServiceInterface
     public function delete(int $id): void;
 
     public function addPlayer(int $teamId, AddPlayerToTeamRequest $request): void;
+
+    public function getMatches(int $teamId): iterable;
 }

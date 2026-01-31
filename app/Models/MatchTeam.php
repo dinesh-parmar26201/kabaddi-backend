@@ -10,6 +10,7 @@ class MatchTeam extends Model
         'match_id',
         'team_id',
         'tshirt_color',
+        'court_side',
     ];
 
     public function match()
@@ -20,5 +21,10 @@ class MatchTeam extends Model
     public function team()
     {
         return $this->belongsTo(Team::class, 'team_id');
+    }
+
+    public function players()
+    {
+        return $this->belongsToMany(User::class, 'match_players', 'team_id', 'user_id');
     }
 }

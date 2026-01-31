@@ -14,8 +14,13 @@ class MatchPlayer extends Model
         'is_substitute',
     ];
 
+    protected $casts = [
+        'is_playing' => 'boolean',
+        'is_substitute' => 'boolean',
+    ];
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
