@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Team;
 
 use App\Models\Team;
 use App\DTO\TeamResponseDTO;
+use App\DTO\MatchResponseDTO;
 use App\Http\Controllers\Controller;
 use App\Services\Team\TeamServiceInterface;
 use App\Http\Requests\Team\StoreTeamRequest;
@@ -90,6 +91,19 @@ class TeamController extends Controller
         return response()->json([
             'message' => 'Team retrieved successfully',
             'data' => TeamResponseDTO::fromModel($team, ['players'])
+        ]);
+    }
+
+    public function matches(int $id)
+    {
+        $team = Team::findOrFail($id);
+        $this->authorize('view', $team);
+
+        $matches = $this->teamService->getMatches($id);
+
+        return response()->json([
+            'message' => 'Team matches retrieved successfully',
+            'data' => MatchResponseDTO::fromModels($matches)
         ]);
     }
 }

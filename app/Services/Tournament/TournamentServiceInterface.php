@@ -14,5 +14,7 @@ interface TournamentServiceInterface
     public function find(int $id);
     public function list();
     public function addTeams(int $tournamentId, array $teamIds);
+    public function getTeams(int $tournamentId);
+    public function getMatches(int $tournamentId);
 }
 

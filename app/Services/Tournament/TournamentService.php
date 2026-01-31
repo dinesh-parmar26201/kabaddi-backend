@@ -101,4 +101,18 @@ class TournamentService implements TournamentServiceInterface
 
         return $tournament;
     }
+
+    public function getTeams(int $tournamentId)
+    {
+        $tournament = Tournament::findOrFail($tournamentId);
+
+        return $tournament->teams;
+    }
+
+    public function getMatches(int $tournamentId)
+    {
+        $tournament = Tournament::findOrFail($tournamentId);
+
+        return $tournament->matches;
+    }
 }

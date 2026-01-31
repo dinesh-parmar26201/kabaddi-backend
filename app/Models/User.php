@@ -47,6 +47,6 @@ class User extends Authenticatable
 
     public function matchPlayers()
     {
-        return $this->hasMany(MatchPlayer::class);
+        return $this->hasMany(MatchPlayer::class, 'player_id');
     }
 }

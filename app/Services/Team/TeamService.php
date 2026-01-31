@@ -115,4 +115,10 @@ class TeamService implements TeamServiceInterface
             $team->allPlayers()->attach($request->player_id, ['is_captain' => $isCaptain]);
         }
     }
+
+    public function getMatches(int $teamId): iterable
+    {
+        $team = Team::findOrFail($teamId);
+        return $team->matches()->get();
+    }
 }

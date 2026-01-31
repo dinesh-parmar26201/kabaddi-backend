@@ -21,6 +21,11 @@ class TeamResponseDTO
         if (in_array('players', $includes)) {
             $data['players'] = UserResponseDTO::collection($team->players);
         }
+
+        if (in_array('matches', $includes)) {
+            $data['matches'] = MatchResponseDTO::collection($team->matches);
+        }
+
         return $data;
     }
 
@@ -35,6 +40,11 @@ class TeamResponseDTO
     {
         return self::fromModel($team);
     }
-
-
+    
+    public static function fromModels($teams): array
+    {
+        return collect($teams)
+            ->map(fn ($team) => self::fromModel($team))
+            ->toArray();
+    }
 }

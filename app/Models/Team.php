@@ -33,12 +33,23 @@ class Team extends Model
         return $this->belongsToMany(User::class, 'team_user')->wherePivot('is_captain', true)->first();
     }
 
-    public function getPlayerCount() {
+    public function getPlayerCount()
+    {
         return $this->players()->count();
     }
 
     public function allPlayers()
     {
         return $this->belongsToMany(User::class, 'team_user');
+    }
+
+    public function matches()
+    {
+        return $this->belongsToMany(GameMatch::class, 'match_teams', 'team_id', 'match_id');
+    }
+
+    public function matchPlayers()
+    {
+        return $this->hasMany(MatchPlayer::class, 'team_id');
     }
 }
