@@ -26,7 +26,7 @@ class GameMatch extends Model
 
     public function teams()
     {
-        return $this->hasMany(MatchTeam::class, 'match_id');
+        return $this->hasMany(MatchTeam::class, 'match_id')->with('team');
     }
 
     public function players()

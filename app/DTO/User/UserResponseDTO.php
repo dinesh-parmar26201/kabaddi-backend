@@ -2,11 +2,13 @@
 
 namespace App\DTO\User;
 
+use App\DTO\TeamResponseDTO;
+
 class UserResponseDTO
 {
-    public static function make($user): array
+    public static function make($user, array $includes = []): array
     {
-        return [
+        $data = [
             'id' => $user->id,
             'name' => $user->fullname,
             'phone' => $user->phone,
@@ -18,10 +20,30 @@ class UserResponseDTO
             'country' => $user->country,
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ];
+
+        if (in_array('teams', $includes)) {
+            $data['teams'] = self::teams($user);
+        }
+        return $data;
     }
 
     public static function fromModel($user): array
     {
         return self::make($user);
+    }
+
+    public static function collection($users): array
+    {
+        return array_map(fn($user) => self::make($user), $users->all());
+    }
+
+    public static function teams($user): array
+    {
+        $teams = $user->teams()->get();
+
+        if ($teams->count() > 0) {
+            return TeamResponseDTO::collection($teams);
+        }
+        return [];
     }
 }

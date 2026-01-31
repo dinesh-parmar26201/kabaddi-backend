@@ -81,4 +81,15 @@ class TeamController extends Controller
             'data' => TeamResponseDTO::fromModel($team)
         ]);
     }
+
+    public function show(int $id)
+    {
+        $team = Team::with('players')->findOrFail($id);
+        $this->authorize('view', $team);
+
+        return response()->json([
+            'message' => 'Team retrieved successfully',
+            'data' => TeamResponseDTO::fromModel($team, ['players'])
+        ]);
+    }
 }

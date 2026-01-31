@@ -4,18 +4,19 @@ namespace App\Services\Match;
 
 use App\Models\GameMatch;
 use App\Models\MatchTeam;
+use App\Http\Requests\Match\CreateMatchRequest;
 
 class MatchService implements MatchServiceInterface
 {
-    public function create(array $data)
+    public function create(CreateMatchRequest $request)
     {
-        $match = GameMatch::create($data);
+        $match = GameMatch::create($request->validated());
 
-        if (!empty($data['teams'])) {
-            foreach ($data['teams'] as $team) {
+        if (!empty($request->getTeams())) {
+            foreach ($request->getTeams() as $team) {
                 MatchTeam::create([
                     'match_id' => $match->id,
-                    'team_id' => $team['team_id'] ?? null,
+                    'team_id' => $team['id'] ?? null,
                     'tshirt_color' => $team['tshirt_color'] ?? null,
                 ]);
             }
@@ -28,20 +29,6 @@ class MatchService implements MatchServiceInterface
     {
         $match = GameMatch::findOrFail($matchId);
         $match->update($data);
-
-        if (!empty($data['teams'])) {
-            foreach ($data['teams'] as $team) {
-                MatchTeam::updateOrCreate(
-                    [
-                        'match_id' => $match->id,
-                        'team_id' => $team['team_id'],
-                    ],
-                    [
-                        'tshirt_color' => $team['tshirt_color'] ?? null,
-                    ]
-                );
-            }
-        }
 
         return $match->load('teams');
     }
