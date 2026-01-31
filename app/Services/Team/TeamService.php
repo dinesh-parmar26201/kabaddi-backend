@@ -7,7 +7,6 @@ use App\Models\Team;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Team\UpdateTeamRequest;
-use Illuminate\Support\Facades\Log as FacadesLog;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
 
 class TeamService implements TeamServiceInterface
@@ -33,7 +32,6 @@ class TeamService implements TeamServiceInterface
                 'logo' => $path ?? null,
                 'created_by' => Auth::id(),
             ]);
-            FacadesLog::info('Team created: ', ['team_id' => $team]);
             return $team;
         } catch (Exception $e) {
             throw $e;
