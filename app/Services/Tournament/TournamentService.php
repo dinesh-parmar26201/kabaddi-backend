@@ -30,7 +30,9 @@ class TournamentService implements TournamentServiceInterface
                 'city' => $request->input('city'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
+                'category' => $request->input('category'),
                 'status' => $request->input('status'),
+                'created_by' => $request->user()->id,
             ]);
             return $tournament;
         } catch (Exception $e) {
@@ -67,6 +69,7 @@ class TournamentService implements TournamentServiceInterface
                 'city' => $request->input('city'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
+                'category' => $request->input('category'),
                 'status' => $request->input('status'),
             ]);
             return $tournament;
@@ -96,6 +99,6 @@ class TournamentService implements TournamentServiceInterface
 
         $tournament->teams()->syncWithoutDetaching($teamIds);
 
-        return $tournament->load('teams');
+        return $tournament;
     }
 }

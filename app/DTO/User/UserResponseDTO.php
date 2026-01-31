@@ -19,4 +19,9 @@ class UserResponseDTO
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ];
     }
+
+    public static function fromModel($user): array
+    {
+        return self::make($user);
+    }
 }
