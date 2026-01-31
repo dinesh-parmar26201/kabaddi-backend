@@ -33,7 +33,7 @@ class TeamService implements TeamServiceInterface
                 'logo' => $path ?? null,
                 'created_by' => Auth::id(),
             ]);
-            FacadesLog::info('Team created: ' , ['team_id' => $team]);
+            FacadesLog::info('Team created: ', ['team_id' => $team]);
             return $team;
         } catch (Exception $e) {
             throw $e;
@@ -103,7 +103,7 @@ class TeamService implements TeamServiceInterface
         if ($isCaptain) {
             $currentCaptain = $team->allPlayers()->wherePivot('is_captain', true)->first();
             if ($currentCaptain) {
-            $team->allPlayers()->updateExistingPivot($currentCaptain->id, ['is_captain' => false]);
+                $team->allPlayers()->updateExistingPivot($currentCaptain->id, ['is_captain' => false]);
             }
         }
 
@@ -113,11 +113,8 @@ class TeamService implements TeamServiceInterface
             // Update existing player record
             $team->allPlayers()->updateExistingPivot($request->player_id, ['is_captain' => $isCaptain]);
         } else {
-            // Add new player only if not exists
-
-
-        // Attach the new player
-        $team->allPlayers()->attach($request->player_id, ['is_captain' => $isCaptain]);
+            // Attach the new player
+            $team->allPlayers()->attach($request->player_id, ['is_captain' => $isCaptain]);
         }
     }
 }
