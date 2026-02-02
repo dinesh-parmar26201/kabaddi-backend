@@ -9,6 +9,7 @@ class CreateMatchRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title' => 'nullable|string|max:255',
             'teams' => 'required|array',
             'teams.*.id' => 'required|exists:teams,id',
             'teams.*.tshirt_color' => 'nullable|string',
@@ -21,6 +22,8 @@ class CreateMatchRequest extends FormRequest
             'organizer_phone' => 'nullable',
             'organizer_email' => 'nullable',
             'status' => 'nullable|string',
+            'toss_winner_team_id' => 'nullable|exists:teams,id',
+            'toss_decision' => 'nullable|string',
         ];
     }
 

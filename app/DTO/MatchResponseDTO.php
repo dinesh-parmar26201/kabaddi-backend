@@ -10,6 +10,7 @@ class MatchResponseDTO
     {
         $data = [
             'id' => $match->id,
+            'title' => $match->title,
             'tournament_id' => $match->tournament_id,
             'start_date' => $match->start_date,
             'start_time' => $match->start_time,
