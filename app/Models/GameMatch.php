@@ -9,6 +9,7 @@ class GameMatch extends Model
     protected $table = 'matches';
 
     protected $fillable = [
+        'title',
         'tournament_id',
         'team_a_id',
         'team_b_id',
