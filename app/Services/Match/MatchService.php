@@ -32,26 +32,29 @@ class MatchService implements MatchServiceInterface
             'toss_decision' => $request->input('toss_decision'),
         ]);
 
-        foreach ([$request->getTeamA(), $request->getTeamB()] as $team) {
-            MatchTeam::create([
-                'match_id' => $match->id,
-                'team_id' => $team['id'] ?? null,
-                'tshirt_color' => $team['tshirt_color'] ?? null,
-                'court_side' => $team['court_side'] ?? null,
-            ]);
+        if ($request->getTeamA() && $request->getTeamB()) {
 
-            $players = TeamPlayer::where('team_id', $team['id'])->get()->toArray();
-
-            $i = 1;
-            foreach ($players as $player) {
-                MatchPlayer::create([
-                    'match_id'      => $match->id,
-                    'team_id'       => $team['id'],
-                    'user_id'       => $player['user_id'],
-                    'is_playing'    => $i <= 7 ? true : false,
-                    'is_substitute' => $i > 7 ? true : false,
+            foreach ([$request->getTeamA(), $request->getTeamB()] as $team) {
+                MatchTeam::create([
+                    'match_id' => $match->id,
+                    'team_id' => $team['id'] ?? null,
+                    'tshirt_color' => $team['tshirt_color'] ?? null,
+                    'court_side' => $team['court_side'] ?? null,
                 ]);
-                $i++;
+
+                $players = TeamPlayer::where('team_id', $team['id'])->get()->toArray();
+
+                $i = 1;
+                foreach ($players as $player) {
+                    MatchPlayer::create([
+                        'match_id'      => $match->id,
+                        'team_id'       => $team['id'],
+                        'user_id'       => $player['user_id'],
+                        'is_playing'    => $i <= 7 ? true : false,
+                        'is_substitute' => $i > 7 ? true : false,
+                    ]);
+                    $i++;
+                }
             }
         }
 
@@ -138,7 +141,7 @@ class MatchService implements MatchServiceInterface
             ]);
         }
 
-        if($request->getCaptainId()) {
+        if ($request->getCaptainId()) {
             MatchPlayer::where('match_id', $matchId)
                 ->where('team_id', $request->getTeamId())
                 ->where('user_id', $request->getCaptainId())
