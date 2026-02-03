@@ -48,7 +48,7 @@ class MatchController extends Controller
             [
                 'message' => 'Match list fetched successfully',
                 'data' => MatchResponseDTO::fromModels(
-                    $this->matchService->list()
+                    $this->matchService->list(), ['teams']
                 )
             ]
         );
