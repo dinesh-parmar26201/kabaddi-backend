@@ -34,7 +34,7 @@ class MatchResponseDTO
 
     public static function teams(GameMatch $match)
     {
-        if ($match->teams()->isEmpty()) {
+        if ($match->teams()->count() === 0) {
             return [];
         }
 
