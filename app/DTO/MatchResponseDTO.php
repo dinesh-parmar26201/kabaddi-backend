@@ -34,9 +34,6 @@ class MatchResponseDTO
 
     public static function teams(GameMatch $match)
     {
-        if ($match->teams()->count() === 0) {
-            return [];
-        }
 
         return $match->teams->map(function ($team) use ($match) {
             return MatchTeamResponseDTO::fromModel($team->team, $match, $team);
