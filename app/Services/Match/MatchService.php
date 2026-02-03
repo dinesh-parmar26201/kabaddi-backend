@@ -14,22 +14,44 @@ class MatchService implements MatchServiceInterface
 {
     public function create(CreateMatchRequest $request)
     {
-        $match = GameMatch::create($request->validated());
+        $match = GameMatch::create([
+            'title' => $request->input('title'),
+            'team_a_id' => $request->input('teams_a_id'),
+            'team_b_id' => $request->input('teams_b_id'),
+            'tournament_id' => $request->input('tournament_id'),
+            'tournament_match_no' => $request->input('tournament_match_no'),
+            'start_date' => $request->input('start_date'),
+            'start_time' => $request->input('start_time'),
+            'end_time' => $request->input('end_time'),
+            'venue' => $request->input('venue'),
+            'ground_name' => $request->input('ground_name'),
+            'organizer_phone' => $request->input('organizer_phone'),
+            'organizer_email' => $request->input('organizer_email'),
+            'status' => $request->input('status', 'scheduled'),
+            'toss_winner_team_id' => $request->input('toss_winner_team_id'),
+            'toss_decision' => $request->input('toss_decision'),
+        ]);
 
-        if (!empty($request->getTeams())) {
-            foreach ($request->getTeams() as $team) {
-                MatchTeam::create([
-                    'match_id' => $match->id,
-                    'team_id' => $team['id'] ?? null,
-                    'tshirt_color' => $team['tshirt_color'] ?? null,
+        foreach ([$request->getTeamA(), $request->getTeamB()] as $team) {
+            MatchTeam::create([
+                'match_id' => $match->id,
+                'team_id' => $team['id'] ?? null,
+                'tshirt_color' => $team['tshirt_color'] ?? null,
+                'court_side' => $team['court_side'] ?? null,
+            ]);
+
+            $players = TeamPlayer::where('team_id', $team['id'])->get()->toArray();
+
+            $i = 1;
+            foreach ($players as $player) {
+                MatchPlayer::create([
+                    'match_id'      => $match->id,
+                    'team_id'       => $team['id'],
+                    'user_id'       => $player['user_id'],
+                    'is_playing'    => $i <= 7 ? true : false,
+                    'is_substitute' => $i > 7 ? true : false,
                 ]);
-
-                $players = TeamPlayer::where('team_id', $team['id'])->get()->toArray();
-                $this->addPlayersToMatchTeam(
-                    $match->id,
-                    $team['id'],
-                    array_map(fn($player) => ['id' => $player['user_id']], $players)
-                );
+                $i++;
             }
         }
 
@@ -94,12 +116,34 @@ class MatchService implements MatchServiceInterface
             ->where('team_id', $request->getTeamId())
             ->delete();
 
-        // add new players
-        $this->addPlayersToMatchTeam(
-            $matchId,
-            $request->getTeamId(),
-            $request->getPlayers()
-        );
+        $team = ['id' => $request->getTeamId()];
+
+        foreach ($request->getMainPlayers() as $playerId) {
+            MatchPlayer::create([
+                'match_id'      => $match->id,
+                'team_id'       => $team['id'],
+                'user_id'       => $playerId,
+                'is_playing'    => true,
+                'is_substitute' => false,
+            ]);
+        }
+
+        foreach ($request->getSubPlayers() as $playerId) {
+            MatchPlayer::create([
+                'match_id'      => $match->id,
+                'team_id'       => $team['id'],
+                'user_id'       => $playerId,
+                'is_playing'    => false,
+                'is_substitute' => true,
+            ]);
+        }
+
+        if($request->getCaptainId()) {
+            MatchPlayer::where('match_id', $matchId)
+                ->where('team_id', $request->getTeamId())
+                ->where('user_id', $request->getCaptainId())
+                ->update(['is_captain' => true]);
+        }
         return $match->load('matchPlayers');
     }
 

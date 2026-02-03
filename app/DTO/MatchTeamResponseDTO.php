@@ -11,6 +11,7 @@ class MatchTeamResponseDTO
     {
         $teamData = TeamResponseDTO::fromModel($team);
         unset($teamData['player_count']);
+        unset($teamData['captain']);
 
         return array_merge($teamData, [
             'court_side' => $teamMatchData ? $teamMatchData->court_side : null,
