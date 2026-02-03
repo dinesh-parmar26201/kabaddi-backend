@@ -10,9 +10,9 @@ class UpdateMatchTeamPlayersRequest extends FormRequest
     {
         return [
             'team_id' => 'required|exists:teams,id',
-            'players' => 'required|array',
-            'players.*.id' => 'required|exists:users,id',
-            'players.*.is_substitute' => 'nullable|boolean',
+            'main_players' => 'required|array|exists:users,id',
+            'sub_players' => 'nullable|array|exists:users,id',
+            'captain_id' => 'nullable|exists:users,id',
         ];
     }
 
@@ -21,9 +21,19 @@ class UpdateMatchTeamPlayersRequest extends FormRequest
         return $this->input('team_id');
     }
 
-    public function getPlayers(): array
+    public function getMainPlayers(): array
     {
-        return $this->input('players', []);
+        return $this->input('main_players', []);
+    }
+
+    public function getSubPlayers(): array
+    {
+        return $this->input('sub_players', []);
+    }
+
+    public function getCaptainId(): ?int
+    {
+        return $this->input('captain_id');
     }
 }
 

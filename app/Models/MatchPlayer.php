@@ -10,11 +10,13 @@ class MatchPlayer extends Model
         'match_id',
         'team_id',
         'user_id',
+        'is_captain',
         'is_playing',
         'is_substitute',
     ];
 
     protected $casts = [
+        'is_captain' => 'boolean',
         'is_playing' => 'boolean',
         'is_substitute' => 'boolean',
     ];
