@@ -40,7 +40,7 @@ class TeamResponseDTO
     {
         return self::fromModel($team);
     }
-    
+
     public static function fromModels($teams): array
     {
         return collect($teams)
