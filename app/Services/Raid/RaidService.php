@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\DB;
 
 class RaidService implements RaidServiceInterface
 {
+    public function getRaidsByMatch(int $matchId)
+    {
+        return Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
+            ->where('match_id', $matchId)
+            ->orderBy('raid_number', 'asc')
+            ->get();
+    }
+
     public function store(int $matchId, array $data): Raid
     {
         $match = GameMatch::with(['teams', 'matchPlayers'])->findOrFail($matchId);
@@ -27,13 +35,13 @@ class RaidService implements RaidServiceInterface
             throw new \Exception('Raider is not a playing member of this team.');
         }
 
-        $lastRaid = Raid::where('match_id', $matchId)
-            ->latest('raid_number')
-            ->first();
+        // $lastRaid = Raid::where('match_id', $matchId)
+        //     ->latest('raid_number')
+        //     ->first();
 
-        if ($lastRaid && $lastRaid->raid_team_id == $data['raid_team_id']) {
-            throw new \Exception('Raid must alternate between teams.');
-        }
+        // if ($lastRaid && $lastRaid->raid_team_id == $data['raid_team_id']) {
+        //     throw new \Exception('Raid must alternate between teams.');
+        // }
 
         // if ($lastRaid && $data['half'] < $lastRaid->half) {
         //     throw new \Exception('Half cannot go backwards.');
@@ -47,11 +55,12 @@ class RaidService implements RaidServiceInterface
         //     throw new \Exception('Super raid requires at least 3 defenders out.');
         // }
 
+        $raidNumber = Raid::query()->where('match_id', $matchId)
+            ->orderBy('raid_number', 'desc')
+            ->value('raid_number') ?? 0;
+        $raidNumber += 1;
 
-        return DB::transaction(function () use ($matchId, $data) {
-
-            $raidNumber = Raid::where('match_id', $matchId)
-                ->max('raid_number') + 1;
+        return DB::transaction(function () use ($matchId, $data, $raidNumber) {
 
             $raid = Raid::create([
                 'match_id' => $matchId,
@@ -62,6 +71,7 @@ class RaidService implements RaidServiceInterface
                 'outcome' => $data['outcome'],
                 'bonus_point' => $data['bonus_point'] ?? false,
                 'super_raid' => $data['super_raid'] ?? false,
+                'super_tackle' => $data['super_tackle'] ?? false,
                 'raider_lineout' => $data['raider_lineout'] ?? false,
                 'all_out' => $data['all_out'] ?? false,
                 'technical_point_team_id' => $data['technical_point_team_id'] ?? null,
@@ -76,14 +86,25 @@ class RaidService implements RaidServiceInterface
             }
 
             // Save tacklers
-            foreach ($data['tacklers'] ?? [] as $tackler) {
-                $raid->tacklers()->create([
-                    'raid_id' => $raid->id,
-                    'user_id' => $tackler,
-                ]);
+            // foreach ($data['tacklers'] ?? [] as $tackler) {
+            $raid->tacklers()->create([
+                'raid_id' => $raid->id,
+                'user_id' => $data['tackler'] ?? null,
+            ]);
+            // }
+
+            // Store defender lineouts
+            if (!empty($data['defender_lineouts'])) {
+                foreach ($data['defender_lineouts'] as $defenderId) {
+                    $raid->defenderLineouts()->create([
+                        'raid_id' => $raid->id,
+                        'match_id' => $raid->match_id,
+                        'defender_id' => $defenderId,
+                    ]);
+                }
             }
 
-            return $raid->load(['defenders', 'tacklers']);
+            return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
         });
     }
 
@@ -99,7 +120,7 @@ class RaidService implements RaidServiceInterface
             $raid->defenders()->delete();
             $raid->tacklers()->delete();
 
-             // Save defenders
+            // Save defenders
             foreach ($data['defenders'] ?? [] as $defender) {
                 $raid->defenders()->create([
                     'raid_id' => $raid->id,
@@ -108,14 +129,25 @@ class RaidService implements RaidServiceInterface
             }
 
             // Save tacklers
-            foreach ($data['tacklers'] ?? [] as $tackler) {
-                $raid->tacklers()->create([
-                    'raid_id' => $raid->id,
-                    'user_id' => $tackler,
-                ]);
+            // foreach ($data['tacklers'] ?? [] as $tackler) {
+            $raid->tacklers()->create([
+                'raid_id' => $raid->id,
+                'user_id' => $data['tackler'] ?? null,
+            ]);
+            // }
+
+            // Store defender lineouts
+            if (!empty($data['defender_lineouts'])) {
+                foreach ($data['defender_lineouts'] as $defenderId) {
+                    $raid->defenderLineouts()->create([
+                        'raid_id' => $raid->id,
+                        'match_id' => $raid->match_id,
+                        'defender_id' => $defenderId,
+                    ]);
+                }
             }
 
-            return $raid->load(['defenders', 'tacklers']);
+            return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
         });
     }
 

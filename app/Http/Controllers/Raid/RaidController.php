@@ -13,6 +13,16 @@ class RaidController extends Controller
         protected RaidServiceInterface $raidService
     ) {}
 
+    public function index(int $match)
+    {
+        $raids = $this->raidService->getRaidsByMatch($match);
+
+        return response()->json([
+            'success' => true,
+            'data' => $raids->map(fn($raid) => RaidResponseDTO::fromModel($raid))
+        ]);
+    }
+    
     public function store(StoreRaidRequest $request, int $match)
     {
         $raid = $this->raidService->store($match, $request->validated());

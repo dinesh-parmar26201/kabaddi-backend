@@ -15,9 +15,19 @@ class Raid extends Model
         'outcome',
         'bonus_point',
         'super_raid',
+        'super_tackle',
         'raider_lineout',
         'all_out',
         'technical_point_team_id',
+    ];
+
+    protected $casts = [
+        'bonus_point' => 'boolean',
+        'super_raid' => 'boolean',
+        'super_tackle' => 'boolean',
+        'raider_lineout' => 'boolean',
+        'all_out' => 'boolean',
+        'raid_number' => 'integer',
     ];
 
     public function defenders()
@@ -27,6 +37,11 @@ class Raid extends Model
 
     public function tacklers()
     {
-        return $this->hasMany(RaidTackler::class);
+        return $this->hasOne(RaidTackler::class);
+    }
+
+    public function defenderLineouts()
+    {
+        return $this->hasMany(RaidDefenderLineout::class);
     }
 }

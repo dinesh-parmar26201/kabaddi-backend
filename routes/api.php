@@ -6,6 +6,7 @@ use App\Http\Controllers\Team\TeamController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Match\MatchController;
 use App\Http\Controllers\Raid\RaidController;
+use App\Http\Controllers\ScoreboardController;
 use App\Http\Controllers\Tournament\TournamentController;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -50,9 +51,14 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('matches/{match}')->group(function () {
+        Route::get('/raids', [RaidController::class, 'index']);
         Route::post('/raids', [RaidController::class, 'store']);
         Route::post('/raids/{raid}', [RaidController::class, 'update']);
         Route::delete('/raids/undo', [RaidController::class, 'undo']);
+    });
+
+    Route::prefix('matches')->group(function () {
+        Route::get('{match}/scoreboard', [ScoreboardController::class, 'show']);
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

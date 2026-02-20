@@ -20,18 +20,14 @@ class RaidResponseDTO
             'outcome' => $raid->outcome,
             'bonus_point' => (bool) $raid->bonus_point,
             'super_raid' => (bool) $raid->super_raid,
+            'super_tackle' => (bool) $raid->super_tackle,
             'raider_lineout' => (bool) $raid->raider_lineout,
             'all_out' => (bool) $raid->all_out,
             'technical_point_team_id' => $raid->technical_point_team_id,
 
             'defenders' => $raid->defenders->pluck('user_id')->values(),
-
-            'tacklers' => $raid->tacklers->map(function ($t) {
-                return [
-                    'player_id' => $t->player_id,
-                    'points' => $t->points,
-                ];
-            })->values(),
+            'tacklers' => $raid->tacklers ? (int) $raid->tacklers->user_id : null,
+            'defender_lineouts' => $raid->defenderLineouts->pluck('defender_id')->values(),
         ];
     }
 }
