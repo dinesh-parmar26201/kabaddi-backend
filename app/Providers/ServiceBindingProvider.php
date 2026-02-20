@@ -12,7 +12,7 @@ class ServiceBindingProvider extends ServiceProvider
         \App\Services\Team\TeamServiceInterface::class => \App\Services\Team\TeamService::class,
         \App\Services\Tournament\TournamentServiceInterface::class => \App\Services\Tournament\TournamentService::class,
         \App\Services\Match\MatchServiceInterface::class => \App\Services\Match\MatchService::class,
-        // \App\Services\Player\PlayerServiceInterface::class => \App\Services\Player\PlayerService::class,
-        // \App\Services\Notification\NotificationServiceInterface::class => \App\Services\Notification\NotificationService::class,
+        \App\Services\Raid\RaidServiceInterface::class => \App\Services\Raid\RaidService::class,
+        \App\Services\Scoreboard\ScoreboardServiceInterface::class => \App\Services\Scoreboard\ScoreboardService::class,
     ];
 }

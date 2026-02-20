@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Team\TeamController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Match\MatchController;
+use App\Http\Controllers\Raid\RaidController;
+use App\Http\Controllers\ScoreboardController;
 use App\Http\Controllers\Tournament\TournamentController;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -32,9 +34,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('{id}', [TournamentController::class, 'show']);
         Route::post('{id}', [TournamentController::class, 'update']);
         Route::delete('{id}', [TournamentController::class, 'destroy']);
-        Route::post('{id}/teams',[TournamentController::class, 'addTeams']);
-        Route::get('{id}/teams',[TournamentController::class, 'getTeams']);
-        Route::get('{id}/matches',[TournamentController::class, 'getMatches']);
+        Route::post('{id}/teams', [TournamentController::class, 'addTeams']);
+        Route::get('{id}/teams', [TournamentController::class, 'getTeams']);
+        Route::get('{id}/matches', [TournamentController::class, 'getMatches']);
     });
 
     Route::prefix('match')->group(function () {
@@ -46,6 +48,17 @@ Route::middleware('auth:api')->group(function () {
         Route::post('{id}/toss', [MatchController::class, 'toss']);
         Route::post('{id}/team-players', [MatchController::class, 'updateTeamPlayers']);
         Route::post('{id}/team-court', [MatchController::class, 'updateTeamCourt']);
+    });
+
+    Route::prefix('matches/{match}')->group(function () {
+        Route::get('/raids', [RaidController::class, 'index']);
+        Route::post('/raids', [RaidController::class, 'store']);
+        Route::post('/raids/{raid}', [RaidController::class, 'update']);
+        Route::delete('/raids/undo', [RaidController::class, 'undo']);
+    });
+
+    Route::prefix('matches')->group(function () {
+        Route::get('{match}/scoreboard', [ScoreboardController::class, 'show']);
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

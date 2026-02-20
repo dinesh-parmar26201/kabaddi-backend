@@ -29,6 +29,10 @@ class MatchResponseDTO
         if (in_array('teams', $includes)) {
             $data['teams'] = self::teams($match);
         }
+
+        // if (in_array('raids', $includes)) {
+            $data['raids'] = self::raids($match);
+        // }
         return $data;
     }
 
@@ -52,5 +56,13 @@ class MatchResponseDTO
         return collect($matches)
             ->map(fn($match) => self::fromModel($match, $includes))
             ->toArray();
+    }
+
+    public static function raids(GameMatch $match)
+    {
+
+        return $match->raids->map(function ($raid) use ($match) {
+            return RaidResponseDTO::fromModel($raid);
+        });
     }
 }
