@@ -22,6 +22,8 @@ return new class extends Migration
             $table->foreignId('match_id')
                 ->constrained('matches')
                 ->cascadeOnDelete();
+            
+            $table->unsignedBigInteger('defender_id');
 
             $table->foreignId('user_id')
                 ->constrained('match_players')
