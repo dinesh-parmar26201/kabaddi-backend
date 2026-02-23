@@ -2,8 +2,11 @@
 
 namespace App\Services\Raid;
 
+use App\Models\EventLog;
 use App\Models\GameMatch;
 use App\Models\Raid;
+use App\Services\Scoreboard\ScoreboardServiceInterface;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class RaidService implements RaidServiceInterface
@@ -32,7 +35,7 @@ class RaidService implements RaidServiceInterface
             ->toArray();
 
         if (!in_array($data['raider_id'], $validPlayers)) {
-            throw new \Exception('Raider is not a playing member of this team.');
+            throw new Exception('Raider is not a playing member of this team.', 200);
         }
 
         // $lastRaid = Raid::where('match_id', $matchId)
@@ -60,7 +63,7 @@ class RaidService implements RaidServiceInterface
             ->value('raid_number') ?? 0;
         $raidNumber += 1;
 
-        return DB::transaction(function () use ($matchId, $data, $raidNumber) {
+        DB::transaction(function () use ($matchId, $data, $raidNumber) {
 
             $raid = Raid::create([
                 'match_id' => $matchId,
@@ -87,10 +90,12 @@ class RaidService implements RaidServiceInterface
 
             // Save tacklers
             // foreach ($data['tacklers'] ?? [] as $tackler) {
-            $raid->tacklers()->create([
-                'raid_id' => $raid->id,
-                'user_id' => $data['tackler'] ?? null,
-            ]);
+            if (isset($data['tackler'])) {
+                $raid->tacklers()->create([
+                    'raid_id' => $raid->id,
+                    'user_id' => $data['tackler'],
+                ]);
+            }
             // }
 
             // Store defender lineouts
@@ -103,9 +108,26 @@ class RaidService implements RaidServiceInterface
                     ]);
                 }
             }
-
-            return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
         });
+        $raid = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
+            ->where('match_id', $matchId)
+            ->where('raid_number', $raidNumber)
+            ->first();
+
+        $scoreService = app(ScoreboardServiceInterface::class);
+        $scoreboard = $scoreService->getMatchScoreboard($match->id);
+        $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
+
+        EventLog::create([
+            'match_id' => $matchId,
+            'raid_id' => $raid->id,
+            'half' => $data['half'],
+            'raid_number' => $raidNumber,
+            'summary' => $data['event_summary'],
+            'score_after_raid' => $data['teamBreakdowns'] ?? [],
+        ]);
+
+        return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
     }
 
     public function update(int $matchId, int $raidId, array $data): Raid
@@ -163,5 +185,50 @@ class RaidService implements RaidServiceInterface
             $lastRaid->tacklers()->delete();
             $lastRaid->delete();
         });
+    }
+
+    public function skip(int $matchId, array $data): Raid
+    {
+        $match = GameMatch::with(['teams', 'matchPlayers'])->findOrFail($matchId);
+
+        $raidNumber = Raid::query()->where('match_id', $matchId)
+            ->orderBy('raid_number', 'desc')
+            ->value('raid_number') ?? 0;
+        $raidNumber += 1;
+
+        $raid = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
+            ->where('match_id', $matchId)
+            ->where('raid_number', $raidNumber)
+            ->first();
+
+        DB::transaction(function () use ($matchId, $data, $raidNumber) {
+
+            $raid = Raid::create([
+                'match_id' => $matchId,
+                'raid_number' => $raidNumber,
+                'half' => $data['half'],
+                'raid_team_id' => $data['raid_team_id'],
+                'outcome' => "skipped",
+            ]);
+        });
+        
+        $raid = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
+            ->where('match_id', $matchId)
+            ->where('raid_number', $raidNumber)
+            ->first();
+
+        $scoreService = app(ScoreboardServiceInterface::class);
+        $scoreboard = $scoreService->getMatchScoreboard($match->id);
+        $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
+
+        EventLog::create([
+            'match_id' => $matchId,
+            'raid_id' => $raid->id,
+            'half' => $data['half'],
+            'raid_number' => $raidNumber,
+            'summary' => $data['event_summary'],
+            'score_after_raid' => $data['teamBreakdowns'] ?? [],
+        ]);
+        return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
     }
 }

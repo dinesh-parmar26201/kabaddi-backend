@@ -61,9 +61,9 @@ class TeamService implements TeamServiceInterface
 
             // Update team data
             $team->update([
-                'name' => $request->input('name'),
-                'city' => $request->input('city'),
-                'logo' => $team->logo,
+                'name' => $request->has('name') ? $request->input('name') : $team->name,
+                'city' => $request->has('city') ? $request->input('city') : $team->city,
+                'logo' => $team->logo, // logo is already handled above
             ]);
 
             // Handle players update

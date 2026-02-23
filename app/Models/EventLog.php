@@ -15,4 +15,8 @@ class EventLog extends Model
         'score_after_raid',
         'notes',
     ];
+
+    protected $casts = [
+        'score_after_raid' => 'array',
+    ];
 }

@@ -3,6 +3,7 @@
 namespace App\DTO;
 
 use App\Models\GameMatch;
+use App\Services\Scoreboard\ScoreboardServiceInterface;
 
 class MatchResponseDTO
 {
@@ -24,15 +25,23 @@ class MatchResponseDTO
             'status' => $match->status,
             'toss_winner_team_id' => $match->toss_winner_team_id,
             'toss_decision' => $match->toss_decision,
+            'current raid' => $match->raids()->latest()->first() ? RaidResponseDTO::fromModel($match->raids()->latest()->first()) : null,
         ];
 
         if (in_array('teams', $includes)) {
             $data['teams'] = self::teams($match);
         }
 
-        // if (in_array('raids', $includes)) {
+        if (in_array('raids', $includes)) {
             $data['raids'] = self::raids($match);
-        // }
+        }
+
+        if (in_array('teamBreakdowns', $includes)) {
+            $scoreService = app(ScoreboardServiceInterface::class);
+            $scoreboard = $scoreService->getMatchScoreboard($match->id);
+            $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
+        }
+
         return $data;
     }
 
