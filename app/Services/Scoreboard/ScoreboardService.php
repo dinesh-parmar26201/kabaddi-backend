@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Scoreboard;
 
 use App\Services\Scoreboard\ScoreboardServiceInterface;
@@ -12,91 +13,185 @@ class ScoreboardService implements ScoreboardServiceInterface
     public function getMatchScoreboard(int $matchId): ScoreboardResponseDTO
     {
         $match = GameMatch::with([
+            'teams.team',
             'raids.defenders',
             'raids.tacklers',
             'raids.defenderLineouts',
             'matchPlayers.user',
         ])->findOrFail($matchId);
 
-        $teams = $match->teams; // assuming relation
+        $teamAId = $match->team_a_id;
+        $teamBId = $match->team_b_id;
+
+        $teamsMap = [
+            $teamAId => [
+                'id' => $teamAId,
+                'name' => $match->teams->firstWhere('team.id', $teamAId)?->team->name,
+                'raidPoints' => 0,
+                'tacklePoints' => 0,
+                'allOutPoints' => 0,
+                'extraPoints' => 0,
+            ],
+            $teamBId => [
+                'id' => $teamBId,
+                'name' => $match->teams->firstWhere('team.id', $teamBId)?->team->name,
+                'raidPoints' => 0,
+                'tacklePoints' => 0,
+                'allOutPoints' => 0,
+                'extraPoints' => 0,
+            ],
+        ];
+
+        $playerStatsMap = [];
+
+        foreach ($match->matchPlayers as $player) {
+            $playerStatsMap[$player->id] = [
+                'playerId' => $player->id,
+                'playerName' => $player->user->fullname,
+                'teamId' => $player->team_id,
+                'raidPoints' => 0,
+                'tacklePoints' => 0,
+                'superRaids' => 0,
+                'superTackles' => 0,
+            ];
+        }
+
+        foreach ($match->raids as $raid) {
+
+            $raidingTeamId = $raid->raid_team_id;
+            $defendingTeamId = $raidingTeamId == $teamAId ? $teamBId : $teamAId;
+
+            $defenderCount = $raid->defenders->count();
+            $lineoutCount = $raid->defenderLineouts->count();
+            $tackleCount = $raid->tacklers ? 1 : 0; // hasOne relation
+
+            /*
+        |--------------------------------------------------------------------------
+        | RAID TEAM POINTS
+        |--------------------------------------------------------------------------
+        */
+
+            // touch points
+            $teamPoints = $defenderCount;
+
+            // bonus
+            if ($raid->bonus_point) {
+                $teamPoints += 1;
+            }
+
+            // defender lineout
+            $teamPoints += $lineoutCount;
+
+            // technical point
+            if ($raid->technical_point_team_id == $raidingTeamId) {
+                $teamPoints += 1;
+            }
+
+            // all out
+            if ($raid->all_out) {
+                $teamPoints += 2;
+                $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
+            }
+
+            $teamsMap[$raidingTeamId]['raidPoints'] += $defenderCount;
+            $teamsMap[$raidingTeamId]['extraPoints'] += ($raid->bonus_point ? 1 : 0) + $lineoutCount;
+            $teamsMap[$raidingTeamId]['extraPoints'] += ($raid->technical_point_team_id == $raidingTeamId ? 1 : 0);
+
+            /*
+        |--------------------------------------------------------------------------
+        | DEFENDING TEAM POINTS
+        |--------------------------------------------------------------------------
+        */
+
+            if ($raid->tacklers) {
+                $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
+
+                if ($raid->super_tackle) {
+                    $teamsMap[$defendingTeamId]['tacklePoints'] += 1; // +1 extra (total 2)
+                }
+
+                if ($raid->technical_point_team_id == $defendingTeamId) {
+                    $teamsMap[$defendingTeamId]['extraPoints'] += 1;
+                }
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | PLAYER STATS
+        |--------------------------------------------------------------------------
+        */
+
+            // Raider stats
+            if (isset($playerStatsMap[$raid->raider_id])) {
+                $playerStatsMap[$raid->raider_id]['raidPoints'] += $defenderCount;
+
+                if ($defenderCount >= 3) {
+                    $playerStatsMap[$raid->raider_id]['superRaids'] += 1;
+                }
+            }
+
+            // Defender touch stats
+            foreach ($raid->defenders as $defender) {
+                if (isset($playerStatsMap[$defender->user_id])) {
+                    // defender got out — no points
+                }
+            }
+
+            // Tackler stats
+            if ($raid->tacklers) {
+                $tacklerId = $raid->tacklers->user_id;
+
+                if (isset($playerStatsMap[$tacklerId])) {
+                    $playerStatsMap[$tacklerId]['tacklePoints'] += 1;
+
+                    if ($raid->super_tackle) {
+                        $playerStatsMap[$tacklerId]['tacklePoints'] += 1;
+                        $playerStatsMap[$tacklerId]['superTackles'] += 1;
+                    }
+                }
+            }
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Build DTOs
+    |--------------------------------------------------------------------------
+    */
 
         $teamBreakdowns = [];
-        $playerStats = [];
 
-        foreach ($teams as $team) {
+        foreach ($teamsMap as $teamData) {
 
-            $teamRaidPoints = 0;
-            $teamTacklePoints = 0;
-            $teamAllOutPoints = 0;
-            $teamExtraPoints = 0;
-
-            foreach ($match->raids as $raid) {
-                // dd($raid->toArray());
-
-                if ($raid->raid_team_id == $team->team->id) {
-
-                    $teamRaidPoints += $raid->defenders->count();
-                    $teamExtraPoints += $raid->defenderLineouts->count();
-                }
-
-                if ($raid->defending_team_id == $team->team->id) {
-
-                    $teamTacklePoints += $raid->tacklers->count();
-                }
-
-                if ($raid->is_all_out) {
-                    $teamAllOutPoints += 2; // adjust if needed
-                }
-            }
-
-            $total = $teamRaidPoints + $teamTacklePoints + $teamAllOutPoints + $teamExtraPoints;
+            $total = $teamData['raidPoints']
+                + $teamData['tacklePoints']
+                + $teamData['allOutPoints']
+                + $teamData['extraPoints'];
 
             $teamBreakdowns[] = new TeamBreakdownDTO(
-                teamId: $team->team->id,
-                teamName: $team->team->name,
-                raidPoints: $teamRaidPoints,
-                tacklePoints: $teamTacklePoints,
-                allOutPoints: $teamAllOutPoints,
-                extraPoints: $teamExtraPoints,
+                teamId: $teamData['id'],
+                teamName: $teamData['name'],
+                raidPoints: $teamData['raidPoints'],
+                tacklePoints: $teamData['tacklePoints'],
+                allOutPoints: $teamData['allOutPoints'],
+                extraPoints: $teamData['extraPoints'],
                 totalPoints: $total
             );
+        }
 
-            // PLAYER STATS
-            foreach ($match->matchPlayers->where('team_id', $team->team->id) as $matchPlayer) {
+        $playerStats = [];
 
-                $raidPts = 0;
-                $tacklePts = 0;
-                $superRaids = 0;
-                $superTackles = 0;
+        foreach ($playerStatsMap as $player) {
 
-                foreach ($match->raids as $raid) {
-
-                    if ($raid->raider_id == $matchPlayer->id) {
-                        $raidPts += $raid->defenders->count();
-                        if ($raid->defenders->count() >= 3) {
-                            $superRaids++;
-                        }
-                    }
-
-                    if ($raid->tacklers && $raid->tacklers->pluck('user_id')->contains($matchPlayer->id)) {
-                        $tacklePts++;
-                        if ($raid->tacklers->count() >= 3) {
-                            $superTackles++;
-                        }
-                    }
-                }
-
-                $playerStats[] = new PlayerStatsDTO(
-                    playerId: $matchPlayer->id,
-                    playerName: $matchPlayer->user->fullname,
-                    teamId: $team->team->id,
-                    raidPoints: $raidPts,
-                    tacklePoints: $tacklePts,
-                    superRaids: $superRaids,
-                    superTackles: $superTackles,
-                    totalPoints: $raidPts + $tacklePts
-                );
-            }
+            $playerStats[] = new PlayerStatsDTO(
+                playerId: $player['playerId'],
+                playerName: $player['playerName'],
+                teamId: $player['teamId'],
+                raidPoints: $player['raidPoints'],
+                tacklePoints: $player['tacklePoints'],
+                superRaids: $player['superRaids'],
+                superTackles: $player['superTackles'],
+                totalPoints: $player['raidPoints'] + $player['tacklePoints']
+            );
         }
 
         return new ScoreboardResponseDTO(

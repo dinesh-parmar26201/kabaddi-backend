@@ -44,4 +44,9 @@ class Raid extends Model
     {
         return $this->hasMany(RaidDefenderLineout::class);
     }
+
+    public function eventLog()
+    {
+        return $this->hasOne(EventLog::class);
+    }
 }

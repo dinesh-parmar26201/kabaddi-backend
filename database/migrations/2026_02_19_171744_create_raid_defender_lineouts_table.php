@@ -18,6 +18,7 @@ return new class extends Migration
                 ->constrained('raids')
                 ->cascadeOnDelete();
 
+                
             $table->foreignId('match_id')
                 ->constrained('matches')
                 ->cascadeOnDelete();
@@ -29,8 +30,6 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->timestamps();
-
-            $table->unique(['raid_id', 'defender_id']); // prevent duplicates
         });
     }
 

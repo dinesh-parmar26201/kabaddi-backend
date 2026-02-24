@@ -28,6 +28,8 @@ class RaidResponseDTO
             'defenders' => $raid->defenders->pluck('user_id')->values(),
             'tacklers' => $raid->tacklers ? (int) $raid->tacklers->user_id : null,
             'defender_lineouts' => $raid->defenderLineouts->pluck('defender_id')->values(),
+            'event_summary' => $raid->eventLog ? $raid->eventLog->summary : null,
+            'score_after_raid' => $raid->eventLog ? $raid->eventLog->score_after_raid : null,
         ];
     }
 }

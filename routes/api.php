@@ -53,6 +53,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('matches/{match}')->group(function () {
         Route::get('/raids', [RaidController::class, 'index']);
         Route::post('/raids', [RaidController::class, 'store']);
+        Route::post('/raids/skip', [RaidController::class, 'skip']);
         Route::post('/raids/{raid}', [RaidController::class, 'update']);
         Route::delete('/raids/undo', [RaidController::class, 'undo']);
     });

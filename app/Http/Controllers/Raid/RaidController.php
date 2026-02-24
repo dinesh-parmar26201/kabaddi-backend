@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Raid;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Raid\StoreRaidRequest;
 use App\DTO\RaidResponseDTO;
+use App\Http\Requests\Raid\StoreSkipRaidRequest;
 use App\Services\Raid\RaidServiceInterface;
 
 class RaidController extends Controller
@@ -22,7 +23,7 @@ class RaidController extends Controller
             'data' => $raids->map(fn($raid) => RaidResponseDTO::fromModel($raid))
         ]);
     }
-    
+
     public function store(StoreRaidRequest $request, int $match)
     {
         $raid = $this->raidService->store($match, $request->validated());
@@ -50,6 +51,16 @@ class RaidController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Last raid undone successfully.'
+        ]);
+    }
+
+    public function skip(StoreSkipRaidRequest $request, int $match)
+    {
+        $raid = $this->raidService->skip($match, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'data' => RaidResponseDTO::fromModel($raid)
         ]);
     }
 }
