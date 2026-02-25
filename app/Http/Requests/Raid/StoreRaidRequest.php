@@ -27,8 +27,6 @@ class StoreRaidRequest extends FormRequest
             'raider_lineout' => ['nullable', 'boolean'],
             'all_out' => ['nullable', 'boolean'],
 
-            'technical_point_team_id' => ['nullable', 'integer', 'exists:teams,id'],
-
             'defenders' => ['nullable', 'array', 'exists:users,id'],
 
             'tackler' => ['nullable', 'integer','exists:users,id'],

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\MatchStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class GameMatch extends Model
@@ -24,6 +26,10 @@ class GameMatch extends Model
         'toss_winner_team_id',
         'toss_decision',
         'status',
+    ];
+
+    protected $casts = [
+        'status' => MatchStatus::class,
     ];
 
     public function teams()
@@ -49,5 +55,14 @@ class GameMatch extends Model
     public function events()
     {
         return $this->hasMany(EventLog::class, 'match_id');
+    }
+
+    protected function status(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value instanceof MatchStatus
+                ? $value->value
+                : $value
+        );
     }
 }

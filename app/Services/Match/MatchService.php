@@ -2,6 +2,7 @@
 
 namespace App\Services\Match;
 
+use App\Enums\MatchStatus;
 use App\Models\GameMatch;
 use App\Models\MatchTeam;
 use App\Models\TeamPlayer;
@@ -14,6 +15,10 @@ class MatchService implements MatchServiceInterface
 {
     public function create(CreateMatchRequest $request)
     {
+        $status = $request->filled('status')
+            ? MatchStatus::from($request->status)
+            : MatchStatus::UPCOMING;
+
         $match = GameMatch::create([
             'title' => $request->input('title'),
             'team_a_id' => $request->input('teams_a_id'),
@@ -27,7 +32,7 @@ class MatchService implements MatchServiceInterface
             'ground_name' => $request->input('ground_name'),
             'organizer_phone' => $request->input('organizer_phone'),
             'organizer_email' => $request->input('organizer_email'),
-            'status' => $request->input('status', 'scheduled'),
+            'status' => $status,
             'toss_winner_team_id' => $request->input('toss_winner_team_id'),
             'toss_decision' => $request->input('toss_decision'),
         ]);
@@ -63,7 +68,15 @@ class MatchService implements MatchServiceInterface
 
     public function update(int $matchId, array $data)
     {
+
         $match = GameMatch::findOrFail($matchId);
+        $status = $data['status'] ?? null;
+        if ($status) {
+            $status = MatchStatus::from($status);
+        } else {
+            $status = $match->status;
+        }
+        $data['status'] = $status;
         $match->update($data);
 
         return $match->load('teams');
