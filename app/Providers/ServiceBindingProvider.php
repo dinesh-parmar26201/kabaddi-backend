@@ -14,5 +14,6 @@ class ServiceBindingProvider extends ServiceProvider
         \App\Services\Match\MatchServiceInterface::class => \App\Services\Match\MatchService::class,
         \App\Services\Raid\RaidServiceInterface::class => \App\Services\Raid\RaidService::class,
         \App\Services\Scoreboard\ScoreboardServiceInterface::class => \App\Services\Scoreboard\ScoreboardService::class,
+        \App\Services\Event\EventServiceInterface::class => \App\Services\Event\EventService::class,
     ];
 }

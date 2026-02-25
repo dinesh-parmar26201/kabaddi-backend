@@ -23,7 +23,6 @@ class RaidResponseDTO
             'super_tackle' => (bool) $raid->super_tackle,
             'raider_lineout' => (bool) $raid->raider_lineout,
             'all_out' => (bool) $raid->all_out,
-            'technical_point_team_id' => $raid->technical_point_team_id,
 
             'defenders' => $raid->defenders->pluck('user_id')->values(),
             'tacklers' => $raid->tacklers ? (int) $raid->tacklers->user_id : null,

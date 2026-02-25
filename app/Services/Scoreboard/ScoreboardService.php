@@ -6,6 +6,7 @@ use App\Services\Scoreboard\ScoreboardServiceInterface;
 use App\DTO\ScoreboardResponseDTO;
 use App\DTO\TeamBreakdownDTO;
 use App\DTO\PlayerStatsDTO;
+use App\Enums\EventType;
 use App\Models\GameMatch;
 
 class ScoreboardService implements ScoreboardServiceInterface
@@ -18,6 +19,9 @@ class ScoreboardService implements ScoreboardServiceInterface
             'raids.tacklers',
             'raids.defenderLineouts',
             'matchPlayers.user',
+            'events' => function ($q) {
+                $q->where('type', EventType::TECHNICAL_POINT);
+            }
         ])->findOrFail($matchId);
 
         $teamAId = $match->team_a_id;
@@ -66,10 +70,10 @@ class ScoreboardService implements ScoreboardServiceInterface
             $tackleCount = $raid->tacklers ? 1 : 0; // hasOne relation
 
             /*
-        |--------------------------------------------------------------------------
-        | RAID TEAM POINTS
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | RAID TEAM POINTS
+            |--------------------------------------------------------------------------
+            */
 
             // touch points
             $teamPoints = $defenderCount;
@@ -82,11 +86,6 @@ class ScoreboardService implements ScoreboardServiceInterface
             // defender lineout
             $teamPoints += $lineoutCount;
 
-            // technical point
-            if ($raid->technical_point_team_id == $raidingTeamId) {
-                $teamPoints += 1;
-            }
-
             // all out
             if ($raid->all_out) {
                 $teamPoints += 2;
@@ -95,13 +94,12 @@ class ScoreboardService implements ScoreboardServiceInterface
 
             $teamsMap[$raidingTeamId]['raidPoints'] += $defenderCount;
             $teamsMap[$raidingTeamId]['extraPoints'] += ($raid->bonus_point ? 1 : 0) + $lineoutCount;
-            $teamsMap[$raidingTeamId]['extraPoints'] += ($raid->technical_point_team_id == $raidingTeamId ? 1 : 0);
 
             /*
-        |--------------------------------------------------------------------------
-        | DEFENDING TEAM POINTS
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | DEFENDING TEAM POINTS
+            |--------------------------------------------------------------------------
+            */
 
             if ($raid->tacklers) {
                 $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
@@ -109,17 +107,13 @@ class ScoreboardService implements ScoreboardServiceInterface
                 if ($raid->super_tackle) {
                     $teamsMap[$defendingTeamId]['tacklePoints'] += 1; // +1 extra (total 2)
                 }
-
-                if ($raid->technical_point_team_id == $defendingTeamId) {
-                    $teamsMap[$defendingTeamId]['extraPoints'] += 1;
-                }
             }
 
             /*
-        |--------------------------------------------------------------------------
-        | PLAYER STATS
-        |--------------------------------------------------------------------------
-        */
+            |--------------------------------------------------------------------------
+            | PLAYER STATS
+            |--------------------------------------------------------------------------
+            */
 
             // Raider stats
             if (isset($playerStatsMap[$raid->raider_id])) {
@@ -153,10 +147,25 @@ class ScoreboardService implements ScoreboardServiceInterface
         }
 
         /*
-    |--------------------------------------------------------------------------
-    | Build DTOs
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | TECHNICAL POINTS FROM EVENTS
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($match->events as $event) {
+            if ($event->type === EventType::TECHNICAL_POINT) {
+
+                if (isset($teamsMap[$event->team_id])) {
+                    $teamsMap[$event->team_id]['extraPoints'] += 1;
+                }
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Build DTOs
+        |--------------------------------------------------------------------------
+        */
 
         $teamBreakdowns = [];
 
