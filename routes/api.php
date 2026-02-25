@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Team\TeamController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Match\MatchController;
@@ -32,6 +33,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('list', [TournamentController::class, 'index']);
         Route::post('', [TournamentController::class, 'store']);
         Route::get('{id}', [TournamentController::class, 'show']);
+
         Route::post('{id}', [TournamentController::class, 'update']);
         Route::delete('{id}', [TournamentController::class, 'destroy']);
         Route::post('{id}/teams', [TournamentController::class, 'addTeams']);
@@ -60,6 +62,12 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('matches')->group(function () {
         Route::get('{match}/scoreboard', [ScoreboardController::class, 'show']);
+    });
+
+    Route::prefix('events')->group(function () {
+        Route::get('/', [EventController::class, 'index']);
+        Route::post('/', [EventController::class, 'store']);
+        Route::put('{event}', [EventController::class, 'update']);
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

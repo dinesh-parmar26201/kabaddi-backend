@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Services\Event;
+
+use App\Models\EventLog;
+use App\Services\Event\EventServiceInterface;
+use App\Services\Scoreboard\ScoreboardServiceInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
+class EventService implements EventServiceInterface
+{
+    public function list(array $filters): LengthAwarePaginator
+    {
+        $query = EventLog::with('raid');
+
+        if (isset($filters['match_id'])) {
+            $query->where('match_id', $filters['match_id']);
+        }
+
+        if (isset($filters['team_id'])) {
+            $query->where('team_id', $filters['team_id']);
+        }
+
+        if (isset($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        $paginator = $query->orderByDesc('id')->paginate(15);
+        $paginator->getCollection()->transform(function ($eventLog) {
+            $eventLog->raid_dto = $eventLog->raid_dto;
+            return $eventLog;
+        });
+        return $paginator;
+    }
+
+    public function store(array $data): EventLog
+    {
+        $scoreService = app(ScoreboardServiceInterface::class);
+        $scoreboard = $scoreService->getMatchScoreboard($data['match_id']);
+        $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
+
+        return EventLog::create([
+            'type' => $data['event_type'],
+            'team_id' => $data['team_id'] ?? null,
+            'match_id' => $data['match_id'],
+            'half' => $data['half'] ?? null,
+            'raid_number' => $data['raid_number'] ?? null,
+            'summary' => $data['summary'] ?? null,
+            'score_after_raid' => $data['teamBreakdowns'] ?? [],
+        ]);
+    }
+
+    public function update(EventLog $event, array $data): EventLog
+    {
+        $event->update($data);
+        return $event->refresh();
+    }
+}

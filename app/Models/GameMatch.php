@@ -45,4 +45,9 @@ class GameMatch extends Model
     {
         return $this->hasMany(MatchPlayer::class, 'match_id');
     }
+
+    public function events()
+    {
+        return $this->hasMany(EventLog::class, 'match_id');
+    }
 }
