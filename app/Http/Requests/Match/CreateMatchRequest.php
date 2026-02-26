@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Match;
 
+use App\Enums\MatchStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class CreateMatchRequest extends FormRequest
 {
@@ -26,7 +28,7 @@ class CreateMatchRequest extends FormRequest
             'ground_name' => 'nullable',
             'organizer_phone' => 'nullable',
             'organizer_email' => 'nullable',
-            'status' => 'nullable|string',
+            'status' => ['nullable', new Enum(MatchStatus::class)],
             'toss_winner_team_id' => 'nullable|exists:teams,id',
             'toss_decision' => 'nullable|string',
         ];

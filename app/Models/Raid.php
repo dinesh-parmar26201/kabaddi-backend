@@ -17,8 +17,7 @@ class Raid extends Model
         'super_raid',
         'super_tackle',
         'raider_lineout',
-        'all_out',
-        'technical_point_team_id',
+        'all_out'
     ];
 
     protected $casts = [
