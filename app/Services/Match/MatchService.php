@@ -55,6 +55,7 @@ class MatchService implements MatchServiceInterface
                         'match_id'      => $match->id,
                         'team_id'       => $team['id'],
                         'user_id'       => $player['user_id'],
+                        'is_captain'    => $player['is_captain'] ?? false,
                         'is_playing'    => $i <= 7 ? true : false,
                         'is_substitute' => $i > 7 ? true : false,
                     ]);
@@ -178,6 +179,7 @@ class MatchService implements MatchServiceInterface
         return GameMatch::with(['teams'])->findOrFail($matchId);
     }
 
+    //deprecated - Helper method to add players to a match team
     protected function addPlayersToMatchTeam(int $matchId, int $teamId, array $players): void
     {
         foreach ($players as $player) {
