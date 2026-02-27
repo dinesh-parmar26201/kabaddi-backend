@@ -9,6 +9,7 @@ enum MatchStatus: string
     case TIMEOUT = 'timeout';
     case SECOND_HALF = 'second_half';
     case COMPLETED = 'completed';
+    case ONGOING = 'ongoing';
 
     public static function values(): array
     {
@@ -23,6 +24,7 @@ enum MatchStatus: string
             self::TIMEOUT => 'Timeout',
             self::SECOND_HALF => '2nd Half',
             self::COMPLETED => 'Completed',
+            self::ONGOING => 'Ongoing',
         };
     }
 
@@ -32,6 +34,7 @@ enum MatchStatus: string
             self::FIRST_HALF,
             self::SECOND_HALF,
             self::TIMEOUT,
+            self::ONGOING,
         ]);
     }
 }

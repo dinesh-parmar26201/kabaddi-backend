@@ -2,6 +2,7 @@
 
 namespace App\DTO;
 
+use App\Enums\MatchStatus;
 use App\Models\GameMatch;
 use App\Services\Scoreboard\ScoreboardServiceInterface;
 
@@ -22,7 +23,7 @@ class MatchResponseDTO
                 'phone' => $match->organizer_phone,
                 'email' => $match->organizer_email,
             ],
-            'status' => $match->status,
+            'status' => MatchStatus::from($match->status)->label(),
             'toss_winner_team_id' => $match->toss_winner_team_id,
             'toss_decision' => $match->toss_decision,
             'current raid' => $match->raids()->latest()->first() ? RaidResponseDTO::fromModel($match->raids()->latest()->first()) : null,
