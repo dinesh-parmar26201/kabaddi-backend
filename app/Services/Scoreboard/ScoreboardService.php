@@ -27,6 +27,11 @@ class ScoreboardService implements ScoreboardServiceInterface
         $teamAId = $match->team_a_id;
         $teamBId = $match->team_b_id;
 
+        /*
+        |--------------------------------------------------------------------------
+        | TEAM MAP
+        |--------------------------------------------------------------------------
+        */
         $teamsMap = [
             $teamAId => [
                 'id' => $teamAId,
@@ -46,11 +51,16 @@ class ScoreboardService implements ScoreboardServiceInterface
             ],
         ];
 
+        /*
+        |--------------------------------------------------------------------------
+        | PLAYER MAP (KEY = user_id)
+        |--------------------------------------------------------------------------
+        */
         $playerStatsMap = [];
 
         foreach ($match->matchPlayers as $player) {
-            $playerStatsMap[$player->id] = [
-                'playerId' => $player->id,
+            $playerStatsMap[$player->user_id] = [
+                'playerId' => $player->user_id,
                 'playerName' => $player->user->fullname,
                 'teamId' => $player->team_id,
                 'raidPoints' => 0,
@@ -60,6 +70,11 @@ class ScoreboardService implements ScoreboardServiceInterface
             ];
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | PROCESS RAIDS
+        |--------------------------------------------------------------------------
+        */
         foreach ($match->raids as $raid) {
 
             $raidingTeamId = $raid->raid_team_id;
@@ -67,80 +82,72 @@ class ScoreboardService implements ScoreboardServiceInterface
 
             $defenderCount = $raid->defenders->count();
             $lineoutCount = $raid->defenderLineouts->count();
-            $tackleCount = $raid->tacklers ? 1 : 0; // hasOne relation
 
             /*
             |--------------------------------------------------------------------------
             | RAID TEAM POINTS
             |--------------------------------------------------------------------------
             */
-
-            // touch points
-            $teamPoints = $defenderCount;
-
-            // bonus
-            if ($raid->bonus_point) {
-                $teamPoints += 1;
-            }
-
-            // defender lineout
-            $teamPoints += $lineoutCount;
-
-            // all out
-            if ($raid->all_out) {
-                $teamPoints += 2;
-                $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
-            }
-
             $teamsMap[$raidingTeamId]['raidPoints'] += $defenderCount;
             $teamsMap[$raidingTeamId]['extraPoints'] += ($raid->bonus_point ? 1 : 0) + $lineoutCount;
+
+            if ($raid->all_out) {
+                $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
+            }
 
             /*
             |--------------------------------------------------------------------------
             | DEFENDING TEAM POINTS
             |--------------------------------------------------------------------------
             */
-
             if ($raid->tacklers) {
-                $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
+                $teamsMap[$defendingTeamId]['tacklePoints'] += $raid->super_tackle ? 2 : 1;
+            }
 
-                if ($raid->super_tackle) {
-                    $teamsMap[$defendingTeamId]['tacklePoints'] += 1; // +1 extra (total 2)
+            /*
+            |--------------------------------------------------------------------------
+            | RAIDER STATS
+            |--------------------------------------------------------------------------
+            */
+            if (isset($playerStatsMap[$raid->raider_id])) {
+
+                $raiderPoints = $defenderCount;
+
+                if ($raid->bonus_point) {
+                    $raiderPoints += 1;
+                }
+
+                $raiderPoints += $lineoutCount;
+
+                $playerStatsMap[$raid->raider_id]['raidPoints'] += $raiderPoints;
+
+                if ($raiderPoints >= 3) {
+                    $playerStatsMap[$raid->raider_id]['superRaids'] += 1;
                 }
             }
 
             /*
             |--------------------------------------------------------------------------
-            | PLAYER STATS
+            | TACKLER STATS (supports hasOne / hasMany)
             |--------------------------------------------------------------------------
             */
-
-            // Raider stats
-            if (isset($playerStatsMap[$raid->raider_id])) {
-                $playerStatsMap[$raid->raider_id]['raidPoints'] += $defenderCount;
-
-                if ($defenderCount >= 3) {
-                    $playerStatsMap[$raid->raider_id]['superRaids'] += 1;
-                }
-            }
-
-            // Defender touch stats
-            foreach ($raid->defenders as $defender) {
-                if (isset($playerStatsMap[$defender->user_id])) {
-                    // defender got out — no points
-                }
-            }
-
-            // Tackler stats
             if ($raid->tacklers) {
-                $tacklerId = $raid->tacklers->user_id;
 
-                if (isset($playerStatsMap[$tacklerId])) {
-                    $playerStatsMap[$tacklerId]['tacklePoints'] += 1;
+                $tacklers = $raid->tacklers instanceof \Illuminate\Support\Collection
+                    ? $raid->tacklers
+                    : collect([$raid->tacklers]);
+
+                foreach ($tacklers as $tackler) {
+
+                    if (!isset($playerStatsMap[$tackler->user_id])) {
+                        continue;
+                    }
+
+                    $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
 
                     if ($raid->super_tackle) {
-                        $playerStatsMap[$tacklerId]['tacklePoints'] += 1;
-                        $playerStatsMap[$tacklerId]['superTackles'] += 1;
+                        $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
+                        $playerStatsMap[$tackler->user_id]['superTackles'] += 1;
                     }
                 }
             }
@@ -148,25 +155,25 @@ class ScoreboardService implements ScoreboardServiceInterface
 
         /*
         |--------------------------------------------------------------------------
-        | TECHNICAL POINTS FROM EVENTS
+        | TECHNICAL POINTS
         |--------------------------------------------------------------------------
         */
-
         foreach ($match->events as $event) {
-            if ($event->type === EventType::TECHNICAL_POINT) {
 
-                if (isset($teamsMap[$event->team_id])) {
-                    $teamsMap[$event->team_id]['extraPoints'] += 1;
-                }
+            if (isset($teamsMap[$event->team_id])) {
+                $teamsMap[$event->team_id]['extraPoints'] += 1;
+            }
+
+            if ($event->player_id && isset($playerStatsMap[$event->player_id])) {
+                $playerStatsMap[$event->player_id]['raidPoints'] += 1;
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Build DTOs
+        | BUILD TEAM DTOs
         |--------------------------------------------------------------------------
         */
-
         $teamBreakdowns = [];
 
         foreach ($teamsMap as $teamData) {
@@ -187,10 +194,14 @@ class ScoreboardService implements ScoreboardServiceInterface
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | BUILD PLAYER DTOs
+        |--------------------------------------------------------------------------
+        */
         $playerStats = [];
 
         foreach ($playerStatsMap as $player) {
-
             $playerStats[] = new PlayerStatsDTO(
                 playerId: $player['playerId'],
                 playerName: $player['playerName'],
