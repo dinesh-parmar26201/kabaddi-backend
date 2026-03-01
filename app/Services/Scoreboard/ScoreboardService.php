@@ -39,7 +39,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'raidPoints' => 0,
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
-                'extraPoints' => 0,
+                'extraPoints' => 0, // bonus + lineout + team-only technical
             ],
             $teamBId => [
                 'id' => $teamBId,
@@ -53,7 +53,7 @@ class ScoreboardService implements ScoreboardServiceInterface
 
         /*
         |--------------------------------------------------------------------------
-        | PLAYER MAP (KEY = user_id)
+        | PLAYER MAP (key = user_id)
         |--------------------------------------------------------------------------
         */
         $playerStatsMap = [];
@@ -81,11 +81,11 @@ class ScoreboardService implements ScoreboardServiceInterface
             $defendingTeamId = $raidingTeamId == $teamAId ? $teamBId : $teamAId;
 
             $defenderCount = $raid->defenders->count();
-            $lineoutCount = $raid->defenderLineouts->count();
+            $lineoutCount  = $raid->defenderLineouts->count();
 
             /*
             |--------------------------------------------------------------------------
-            | RAID TEAM POINTS
+            | TEAM POINTS
             |--------------------------------------------------------------------------
             */
             $teamsMap[$raidingTeamId]['raidPoints'] += $defenderCount;
@@ -95,18 +95,13 @@ class ScoreboardService implements ScoreboardServiceInterface
                 $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | DEFENDING TEAM POINTS
-            |--------------------------------------------------------------------------
-            */
             if ($raid->tacklers) {
                 $teamsMap[$defendingTeamId]['tacklePoints'] += $raid->super_tackle ? 2 : 1;
             }
 
             /*
             |--------------------------------------------------------------------------
-            | RAIDER STATS
+            | RAIDER PLAYER STATS
             |--------------------------------------------------------------------------
             */
             if (isset($playerStatsMap[$raid->raider_id])) {
@@ -119,6 +114,10 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 $raiderPoints += $lineoutCount;
 
+                if ($raid->all_out) {
+                    $raiderPoints += 2;
+                }
+
                 $playerStatsMap[$raid->raider_id]['raidPoints'] += $raiderPoints;
 
                 if ($raiderPoints >= 3) {
@@ -128,7 +127,7 @@ class ScoreboardService implements ScoreboardServiceInterface
 
             /*
             |--------------------------------------------------------------------------
-            | TACKLER STATS (supports hasOne / hasMany)
+            | TACKLER PLAYER STATS (hasOne / hasMany safe)
             |--------------------------------------------------------------------------
             */
             if ($raid->tacklers) {
@@ -157,15 +156,16 @@ class ScoreboardService implements ScoreboardServiceInterface
         |--------------------------------------------------------------------------
         | TECHNICAL POINTS
         |--------------------------------------------------------------------------
+        | If player_id exists → player
+        | Else → team-only
+        |--------------------------------------------------------------------------
         */
         foreach ($match->events as $event) {
 
-            if (isset($teamsMap[$event->team_id])) {
-                $teamsMap[$event->team_id]['extraPoints'] += 1;
-            }
-
             if ($event->player_id && isset($playerStatsMap[$event->player_id])) {
                 $playerStatsMap[$event->player_id]['raidPoints'] += 1;
+            } else {
+                $teamsMap[$event->team_id]['extraPoints'] += 1;
             }
         }
 
