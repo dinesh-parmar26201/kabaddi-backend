@@ -19,7 +19,7 @@ class StoreRaidRequest extends FormRequest
             'raid_team_id' => ['required', 'integer', 'exists:teams,id'],
             'raider_id' => ['required', 'integer', 'exists:users,id'],
 
-            'outcome' => ['required', 'string', 'in:successful,unsuccessful,empty'],
+            'outcome' => ['required', 'string', 'in:successful,unsuccessful,empty,technical_point'],
 
             'bonus_point' => ['nullable', 'boolean'],
             'super_raid' => ['nullable', 'boolean'],
