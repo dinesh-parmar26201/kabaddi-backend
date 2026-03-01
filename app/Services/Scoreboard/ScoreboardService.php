@@ -39,7 +39,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'raidPoints' => 0,
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
-                'extraPoints' => 0, // bonus + lineout + team-only technical
+                'extraPoints' => 0, // lineout + team-only technical
             ],
             $teamBId => [
                 'id' => $teamBId,
@@ -77,7 +77,7 @@ class ScoreboardService implements ScoreboardServiceInterface
         */
         foreach ($match->raids as $raid) {
 
-            $raidingTeamId = $raid->raid_team_id;
+            $raidingTeamId   = $raid->raid_team_id;
             $defendingTeamId = $raidingTeamId == $teamAId ? $teamBId : $teamAId;
 
             $defenderCount = $raid->defenders->count();
@@ -89,7 +89,9 @@ class ScoreboardService implements ScoreboardServiceInterface
             |--------------------------------------------------------------------------
             */
             $teamsMap[$raidingTeamId]['raidPoints'] += $defenderCount;
-            $teamsMap[$raidingTeamId]['extraPoints'] += ($raid->bonus_point ? 1 : 0) + $lineoutCount;
+
+            // ❗ FIX: bonus REMOVED from team extraPoints
+            $teamsMap[$raidingTeamId]['extraPoints'] += $lineoutCount;
 
             if ($raid->all_out) {
                 $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
@@ -108,18 +110,20 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 $raiderPoints = $defenderCount;
 
+                // bonus → raider ONLY
                 if ($raid->bonus_point) {
                     $raiderPoints += 1;
                 }
 
-                $raiderPoints += $lineoutCount;
-
+                // lineout does NOT go to raider
+                // all-out goes to raider
                 if ($raid->all_out) {
                     $raiderPoints += 2;
                 }
 
                 $playerStatsMap[$raid->raider_id]['raidPoints'] += $raiderPoints;
 
+                // super raid = 3+ points (classification only)
                 if ($raiderPoints >= 3) {
                     $playerStatsMap[$raid->raider_id]['superRaids'] += 1;
                 }
@@ -156,8 +160,8 @@ class ScoreboardService implements ScoreboardServiceInterface
         |--------------------------------------------------------------------------
         | TECHNICAL POINTS
         |--------------------------------------------------------------------------
-        | If player_id exists → player
-        | Else → team-only
+        | player_id → player
+        | else → team-only
         |--------------------------------------------------------------------------
         */
         foreach ($match->events as $event) {
