@@ -33,24 +33,18 @@ class ScoreboardService implements ScoreboardServiceInterface
             $teamAId => [
                 'id' => $teamAId,
                 'name' => $match->teams->firstWhere('team.id', $teamAId)?->team->name,
-                'raidPoints' => 0,
-                'tacklePoints' => 0,
-                'allOutPoints' => 0,
-                'extraPoints' => 0,
+                'points' => 0,
             ],
             $teamBId => [
                 'id' => $teamBId,
                 'name' => $match->teams->firstWhere('team.id', $teamBId)?->team->name,
-                'raidPoints' => 0,
-                'tacklePoints' => 0,
-                'allOutPoints' => 0,
-                'extraPoints' => 0,
+                'points' => 0,
             ],
         ];
 
         /*
         |--------------------------------------------------------------------------
-        | PLAYER MAP
+        | PLAYER MAP (key = user_id)
         |--------------------------------------------------------------------------
         */
         $playerStatsMap = [];
@@ -60,9 +54,11 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'playerId' => $player->user_id,
                 'playerName' => $player->user->fullname,
                 'teamId' => $player->team_id,
+
                 'raidPoints' => 0,
                 'tacklePoints' => 0,
                 'bonusPoints' => 0,
+
                 'superRaids' => 0,
                 'superTackles' => 0,
             ];
@@ -76,7 +72,7 @@ class ScoreboardService implements ScoreboardServiceInterface
         foreach ($match->raids as $raid) {
 
             $raidingTeamId   = $raid->raid_team_id;
-            $defendingTeamId = $raidingTeamId === $teamAId ? $teamBId : $teamAId;
+            $defendingTeamId = $raidingTeamId == $teamAId ? $teamBId : $teamAId;
 
             /*
             |--------------------------------------------------------------------------
@@ -85,18 +81,20 @@ class ScoreboardService implements ScoreboardServiceInterface
             */
             if ($raid->outcome === 'successful') {
 
-                // Defender out → raider + team
+                // Defender out → team + raider
                 $defenderCount = $raid->defenders->count();
 
-                if ($defenderCount > 0 && isset($playerStatsMap[$raid->raider_id])) {
-                    $playerStatsMap[$raid->raider_id]['raidPoints'] += $defenderCount;
-                    $teamsMap[$raidingTeamId]['raidPoints'] += $defenderCount;
+                if ($defenderCount > 0) {
+                    $teamsMap[$raidingTeamId]['points'] += $defenderCount;
+
+                    if (isset($playerStatsMap[$raid->raider_id])) {
+                        $playerStatsMap[$raid->raider_id]['raidPoints'] += $defenderCount;
+                    }
                 }
 
-                // Bonus → raider + team (extra)
+                // Bonus → raider only
                 if ($raid->bonus_point && isset($playerStatsMap[$raid->raider_id])) {
                     $playerStatsMap[$raid->raider_id]['bonusPoints'] += 1;
-                    $teamsMap[$raidingTeamId]['extraPoints'] += 1;
                 }
 
                 // Super raid → count only
@@ -105,13 +103,16 @@ class ScoreboardService implements ScoreboardServiceInterface
                 }
 
                 // Raider caught → defending team only
-                if ($raid->tacklers && $raid->tacklers->count() > 0) {
-                    $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
+                if (
+                    $raid->tacklers instanceof \Illuminate\Support\Collection &&
+                    $raid->tacklers->isNotEmpty()
+                ) {
+                    $teamsMap[$defendingTeamId]['points'] += 1;
                 }
 
                 // All out → raiding team only
                 if ($raid->all_out) {
-                    $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
+                    $teamsMap[$raidingTeamId]['points'] += 2;
                 }
             }
 
@@ -122,27 +123,36 @@ class ScoreboardService implements ScoreboardServiceInterface
             */
             if ($raid->outcome === 'unsuccessful') {
 
-                // Raider out → tackler player + team
-                if ($raid->tacklers && $raid->tacklers->count() > 0) {
-
+                // Raider out → tackler + team
+                if (
+                    $raid->tacklers instanceof \Illuminate\Support\Collection &&
+                    $raid->tacklers->isNotEmpty()
+                ) {
                     foreach ($raid->tacklers as $tackler) {
                         if (isset($playerStatsMap[$tackler->user_id])) {
                             $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
                         }
                     }
 
-                    $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
+                    $teamsMap[$defendingTeamId]['points'] += 1;
                 }
 
                 // Bonus → raider + team
-                if ($raid->bonus_point && isset($playerStatsMap[$raid->raider_id])) {
-                    $playerStatsMap[$raid->raider_id]['bonusPoints'] += 1;
-                    $teamsMap[$raidingTeamId]['extraPoints'] += 1;
+                if ($raid->bonus_point) {
+
+                    if (isset($playerStatsMap[$raid->raider_id])) {
+                        $playerStatsMap[$raid->raider_id]['bonusPoints'] += 1;
+                    }
+
+                    $teamsMap[$raidingTeamId]['points'] += 1;
                 }
 
-                // Super tackle → tackler + team (2 points)
-                if ($raid->super_tackle && $raid->tacklers && $raid->tacklers->count() > 0) {
-
+                // Super tackle → 2 points player + team
+                if (
+                    $raid->super_tackle &&
+                    $raid->tacklers instanceof \Illuminate\Support\Collection &&
+                    $raid->tacklers->isNotEmpty()
+                ) {
                     foreach ($raid->tacklers as $tackler) {
                         if (isset($playerStatsMap[$tackler->user_id])) {
                             $playerStatsMap[$tackler->user_id]['tacklePoints'] += 2;
@@ -150,10 +160,10 @@ class ScoreboardService implements ScoreboardServiceInterface
                         }
                     }
 
-                    $teamsMap[$defendingTeamId]['tacklePoints'] += 2;
+                    $teamsMap[$defendingTeamId]['points'] += 2;
                 }
 
-                // Raider lineout → no points
+                // Raider lineout → no points (store only)
             }
         }
 
@@ -165,20 +175,14 @@ class ScoreboardService implements ScoreboardServiceInterface
         $teamBreakdowns = [];
 
         foreach ($teamsMap as $team) {
-            $total =
-                $team['raidPoints']
-                + $team['tacklePoints']
-                + $team['allOutPoints']
-                + $team['extraPoints'];
-
             $teamBreakdowns[] = new TeamBreakdownDTO(
                 teamId: $team['id'],
                 teamName: $team['name'],
-                raidPoints: $team['raidPoints'],
-                tacklePoints: $team['tacklePoints'],
-                allOutPoints: $team['allOutPoints'],
-                extraPoints: $team['extraPoints'],
-                totalPoints: $total
+                raidPoints: $team['points'],
+                tacklePoints: 0,
+                allOutPoints: 0,
+                extraPoints: 0,
+                totalPoints: $team['points']
             );
         }
 
@@ -198,8 +202,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 tacklePoints: $player['tacklePoints'],
                 superRaids: $player['superRaids'],
                 superTackles: $player['superTackles'],
-                totalPoints:
-                    $player['raidPoints']
+                totalPoints: $player['raidPoints']
                     + $player['tacklePoints']
                     + $player['bonusPoints']
             );
