@@ -153,10 +153,10 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                     if ($raid->super_tackle) {
                         // Super tackle → +2
-                        $teamsMap[$defendingTeamId]['tacklePoints'] += 2;
+                        $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
 
                         if (isset($playerStatsMap[$tackler->user_id])) {
-                            $playerStatsMap[$tackler->user_id]['tacklePoints'] += 2;
+                            $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
                             $playerStatsMap[$tackler->user_id]['superTackles'] += 1;
                         }
                     } else {
