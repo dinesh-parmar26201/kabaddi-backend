@@ -37,6 +37,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'superTackles'  => 0,
             ],
             $teamBId => [
                 'id'           => $teamBId,
@@ -45,6 +46,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'superTackles'  => 0,
             ],
         ];
 
@@ -158,6 +160,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                         if (isset($playerStatsMap[$tackler->user_id])) {
                             $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
                             $playerStatsMap[$tackler->user_id]['superTackles'] += 1;
+                            $teamsMap[$defendingTeamId]['superTackles'] += 1;
                         }
                     } else {
                         // Normal tackle → +1
@@ -191,7 +194,7 @@ class ScoreboardService implements ScoreboardServiceInterface
             $total = $team['raidPoints']
                 + $team['tacklePoints']
                 + $team['allOutPoints']
-                + $team['extraPoints']
+                + $team['extraPoints'];
                 + $team['superTackles'];
 
             $teamBreakdowns[] = new TeamBreakdownDTO(
