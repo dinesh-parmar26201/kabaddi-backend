@@ -194,7 +194,7 @@ class ScoreboardService implements ScoreboardServiceInterface
             $total = $team['raidPoints']
                 + $team['tacklePoints']
                 + $team['allOutPoints']
-                + $team['extraPoints'];
+                + $team['extraPoints']
                 + $team['superTackles'];
 
             $teamBreakdowns[] = new TeamBreakdownDTO(
