@@ -11,6 +11,7 @@ class PlayerStatsDTO
         public int $tacklePoints,
         public int $superRaids,
         public int $superTackles,
+        public int $bonusPoints,
         public int $totalPoints
     ) {}
 }
