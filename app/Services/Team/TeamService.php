@@ -13,7 +13,12 @@ class TeamService implements TeamServiceInterface
 {
     public function list(): iterable
     {
-        return Team::where('created_by', Auth::id())->latest()->get();
+        return Team::where('created_by', Auth::id())
+            ->orWhereHas('allPlayers', function ($q) {
+                $q->where('users.id', Auth::id());
+            })
+            ->latest()
+            ->get();
     }
 
     public function create($request): Team
