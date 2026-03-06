@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tournament;
 
+use Illuminate\Http\Request;
 use App\Models\Tournament;
 use App\DTO\TeamResponseDTO;
 use App\DTO\MatchResponseDTO;

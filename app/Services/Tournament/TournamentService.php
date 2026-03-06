@@ -88,7 +88,7 @@ class TournamentService implements TournamentServiceInterface
         return Tournament::findOrFail($id);
     }
 
-    public function list(?string $search = null)
+    public function list(?string $search = null): iterable
     {
         $query = Tournament::query();
 

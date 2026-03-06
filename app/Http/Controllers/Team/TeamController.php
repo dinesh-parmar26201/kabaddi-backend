@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Team;
 
+use Illuminate\Http\Request;
 use App\Models\Team;
 use App\DTO\TeamResponseDTO;
 use App\DTO\MatchResponseDTO;
