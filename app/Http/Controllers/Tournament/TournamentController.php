@@ -45,17 +45,16 @@ class TournamentController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Tournament::class);
-        $tournaments = $this->service->list();
 
-        return response()->json(
-            [
-                'message' => 'Tournaments retrieved successfully',
-                'data' => TournamentResponseDTO::collection($tournaments)
-            ]
-        );
+        $tournaments = $this->service->list($request->search);
+
+        return response()->json([
+            'message' => 'Tournaments retrieved successfully',
+            'data' => TournamentResponseDTO::collection($tournaments)
+        ]);
     }
 
     public function show($id)

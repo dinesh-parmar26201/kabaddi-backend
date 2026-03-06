@@ -11,14 +11,20 @@ use App\Http\Requests\Team\AddPlayerToTeamRequest;
 
 class TeamService implements TeamServiceInterface
 {
-    public function list(): iterable
+    public function list(?string $search = null): iterable
     {
-        return Team::where('created_by', Auth::id())
-            ->orWhereHas('allPlayers', function ($q) {
-                $q->where('users.id', Auth::id());
-            })
-            ->latest()
-            ->get();
+        $query = Team::where(function ($q) {
+            $q->where('created_by', Auth::id())
+            ->orWhereHas('allPlayers', function ($q2) {
+                $q2->where('users.id', Auth::id());
+            });
+        });
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        return $query->latest()->get();
     }
 
     public function create($request): Team

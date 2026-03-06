@@ -88,9 +88,15 @@ class TournamentService implements TournamentServiceInterface
         return Tournament::findOrFail($id);
     }
 
-    public function list()
+    public function list(?string $search = null)
     {
-        return Tournament::latest()->get();
+        $query = Tournament::query();
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        return $query->latest()->get();
     }
 
     public function addTeams(int $tournamentId, array $teamIds)

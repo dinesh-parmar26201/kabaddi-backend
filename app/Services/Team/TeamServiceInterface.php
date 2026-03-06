@@ -9,7 +9,7 @@ use App\Http\Requests\Team\AddPlayerToTeamRequest;
 
 interface TeamServiceInterface
 {
-    public function list(): iterable;
+    public function list(?string $search = null): iterable;
 
     public function create(StoreTeamRequest $request): Team;
 
