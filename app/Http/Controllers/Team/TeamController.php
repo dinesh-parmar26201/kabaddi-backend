@@ -20,9 +20,9 @@ class TeamController extends Controller
         private TeamServiceInterface $teamService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $teams = $this->teamService->list();
+        $teams = $this->teamService->list($request->search);
 
         return response()->json([
             'message' => 'Teams retrieved successfully',
