@@ -11,7 +11,7 @@ class EventService implements EventServiceInterface
 {
     public function list(array $filters): LengthAwarePaginator
     {
-        $query = EventLog::query()->without('raid');
+        $query = EventLog::with('raid');
 
         if (isset($filters['match_id'])) {
             $query->where('match_id', $filters['match_id']);
