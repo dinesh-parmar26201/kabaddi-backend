@@ -16,6 +16,7 @@ class TeamResponseDTO
             'city'       => $team->city,
             'player_count' => $team->getPlayerCount(),
             'captain'    => $team->captain() ? UserResponseDTO::make($team->captain()) : null,
+            'created_by' => $team->created_by ? UserResponseDTO::fromModel($team->creator) : null,
         ];
 
         if (in_array('players', $includes)) {

@@ -121,4 +121,10 @@ class TournamentService implements TournamentServiceInterface
 
         return $tournament->matches;
     }
+
+    public function removeTeam(int $tournamentId, int $teamId): void
+    {
+        $tournament = Tournament::findOrFail($tournamentId);
+        $tournament->teams()->detach($teamId);
+    }
 }

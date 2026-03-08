@@ -2,7 +2,6 @@
 
 namespace App\Services\Tournament;
 
-use Symfony\Component\HttpKernel\HttpCache\Store;
 use App\Http\Requests\Tournament\StoreTournamentRequest;
 use App\Http\Requests\Tournament\UpdateTournamentRequest;
 
@@ -16,5 +15,6 @@ interface TournamentServiceInterface
     public function addTeams(int $tournamentId, array $teamIds);
     public function getTeams(int $tournamentId);
     public function getMatches(int $tournamentId);
+    public function removeTeam(int $tournamentId, int $teamId): void;
 }
 

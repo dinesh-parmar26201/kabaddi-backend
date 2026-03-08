@@ -132,4 +132,10 @@ class TeamService implements TeamServiceInterface
         $team = Team::findOrFail($teamId);
         return $team->matches()->get();
     }
+
+    public function removePlayer(int $teamId, int $playerId): void
+    {
+        $team = Team::findOrFail($teamId);
+        $team->allPlayers()->detach($playerId);
+    }
 }

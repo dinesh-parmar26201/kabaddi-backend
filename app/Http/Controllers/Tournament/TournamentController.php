@@ -122,4 +122,22 @@ class TournamentController extends Controller
             'data' => MatchResponseDTO::fromModels($matches)
         ]);
     }
+
+    public function removeTeam(int $id, int $teamId)
+    {
+        $tournament = Tournament::findOrFail($id);
+        $this->authorize('removeTeam', $tournament);
+
+        if (!$tournament->teams()->where('team_id', $teamId)->exists()) {
+            return response()->json([
+                'message' => 'Team not found in tournament'
+            ], 200);
+        }
+
+        $this->service->removeTeam($id, $teamId);
+
+        return response()->json([
+            'message' => 'Team removed from tournament successfully'
+        ]);
+    }
 }

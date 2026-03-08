@@ -54,4 +54,12 @@ class TournamentPolicy
     {
         return $user->id === $tournament->created_by;
     }
+
+    /**
+     * Determine if the user can remove teams from the tournament.
+     */
+    public function removeTeam(User $user, Tournament $tournament): bool
+    {
+        return $user->id === $tournament->created_by;
+    }
 }
