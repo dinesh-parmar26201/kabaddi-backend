@@ -107,4 +107,23 @@ class TeamController extends Controller
             'data' => MatchResponseDTO::fromModels($matches, ['teams'])
         ]);
     }
+
+    public function removePlayer(int $id, int $player_id)
+    {
+        $team = Team::findOrFail($id);
+        $this->authorize('removePlayer', $team);
+
+        if (!$team->players()->where('user_id', $player_id)->exists()) {
+            return response()->json([
+                'message' => 'Player not found in the team'
+            ], 200);
+        }
+
+        $this->teamService->removePlayer($team->id, $player_id);
+
+        return response()->json([
+            'message' => 'Players removed successfully',
+            'data' => TeamResponseDTO::fromModel($team)
+        ]);
+    }
 }

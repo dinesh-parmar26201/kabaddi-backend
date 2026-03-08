@@ -2,6 +2,7 @@
 
 namespace App\DTO;
 
+use App\DTO\User\UserResponseDTO;
 use App\Enums\MatchStatus;
 use App\Models\GameMatch;
 use App\Services\Scoreboard\ScoreboardServiceInterface;
@@ -27,6 +28,7 @@ class MatchResponseDTO
             'toss_winner_team_id' => $match->toss_winner_team_id,
             'toss_decision' => $match->toss_decision,
             'current raid' => $match->raids()->latest()->first() ? RaidResponseDTO::fromModel($match->raids()->latest()->first()) : null,
+            'created_by' => $match->created_by ? UserResponseDTO::fromModel($match->creator) : null,
         ];
 
         if (in_array('teams', $includes)) {

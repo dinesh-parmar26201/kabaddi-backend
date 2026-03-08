@@ -26,6 +26,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('{id}', [TeamController::class, 'show']);
         Route::delete('{id}', [TeamController::class, 'destroy']);
         Route::post('{id}/add-player', [TeamController::class, 'addPlayer']);
+        Route::post('{id}/remove-player/{player_id}', [TeamController::class, 'removePlayer']);
         Route::get('{id}/matches', [TeamController::class, 'matches']);
     });
 
@@ -33,10 +34,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('list', [TournamentController::class, 'index']);
         Route::post('', [TournamentController::class, 'store']);
         Route::get('{id}', [TournamentController::class, 'show']);
-
         Route::post('{id}', [TournamentController::class, 'update']);
         Route::delete('{id}', [TournamentController::class, 'destroy']);
         Route::post('{id}/teams', [TournamentController::class, 'addTeams']);
+        Route::post('{id}/remove-team/{team_id}', [TournamentController::class, 'removeTeam']);
         Route::get('{id}/teams', [TournamentController::class, 'getTeams']);
         Route::get('{id}/matches', [TournamentController::class, 'getMatches']);
     });

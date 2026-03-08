@@ -26,6 +26,7 @@ class GameMatch extends Model
         'toss_winner_team_id',
         'toss_decision',
         'status',
+        'created_by',
     ];
 
     protected $casts = [
@@ -64,5 +65,10 @@ class GameMatch extends Model
                 ? $value->value
                 : $value
         );
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

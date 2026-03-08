@@ -55,4 +55,12 @@ class TeamPolicy
     {
         return $user->id === $team->created_by;
     }
+
+    /**
+     * Determine if the user can remove players from the team.
+     */
+    public function removePlayer(User $user, Team $team): bool
+    {
+        return $user->id === $team->created_by;
+    }
 }

@@ -35,6 +35,7 @@ class MatchService implements MatchServiceInterface
             'status' => $status,
             'toss_winner_team_id' => $request->input('toss_winner_team_id'),
             'toss_decision' => $request->input('toss_decision'),
+            'created_by' => $request->user()->id,
         ]);
 
         if ($request->getTeamA() && $request->getTeamB()) {
