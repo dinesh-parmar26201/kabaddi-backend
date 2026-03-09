@@ -11,7 +11,7 @@ use App\Models\GameMatch;
 
 class ScoreboardService implements ScoreboardServiceInterface
 {
-   public function getMatchScoreboard(int $matchId): ScoreboardResponseDTO
+    public function getMatchScoreboard(int $matchId): ScoreboardResponseDTO
     {
         $match = GameMatch::with([
             'teams.team',
@@ -37,6 +37,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'technicalPoints' => 0,
                 'superTackles'  => 0,
             ],
             $teamBId => [
@@ -46,6 +47,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'technicalPoints' => 0,
                 'superTackles'  => 0,
             ],
         ];
@@ -185,6 +187,22 @@ class ScoreboardService implements ScoreboardServiceInterface
 
         /*
         |--------------------------------------------------------------------------
+        | PROCESS TECHNICAL POINTS
+        |--------------------------------------------------------------------------
+        | - technical points are awarded for non-raid events (e.g. fouls, timeouts)
+        | - they can be awarded to either team and may not be associated with a specific player
+        |--------------------------------------------------------------------------
+        */
+        foreach ($match->events as $event) {
+            if ($event->type) {
+                if ($event->type->value == EventType::TECHNICAL_POINT->value) {
+                    $teamsMap[$event->team_id]['technicalPoints'] += 1;
+                }
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | TEAM DTOs
         |--------------------------------------------------------------------------
         */
@@ -195,16 +213,18 @@ class ScoreboardService implements ScoreboardServiceInterface
                 + $team['tacklePoints']
                 + $team['allOutPoints']
                 + $team['extraPoints']
+                + $team['technicalPoints']
                 + $team['superTackles'];
 
             $teamBreakdowns[] = new TeamBreakdownDTO(
-                teamId:       $team['id'],
-                teamName:     $team['name'],
-                raidPoints:   $team['raidPoints'],
+                teamId: $team['id'],
+                teamName: $team['name'],
+                raidPoints: $team['raidPoints'],
                 tacklePoints: $team['tacklePoints'],
                 allOutPoints: $team['allOutPoints'],
-                extraPoints:  $team['extraPoints'],
-                totalPoints:  $total
+                extraPoints: $team['extraPoints'],
+                technicalPoints: $team['technicalPoints'],
+                totalPoints: $total
             );
         }
 
@@ -223,21 +243,21 @@ class ScoreboardService implements ScoreboardServiceInterface
                 + $player['superTackles'];
 
             $playerStats[] = new PlayerStatsDTO(
-                playerId:     $player['playerId'],
-                playerName:   $player['playerName'],
-                teamId:       $player['teamId'],
-                raidPoints:   $player['raidPoints'],
+                playerId: $player['playerId'],
+                playerName: $player['playerName'],
+                teamId: $player['teamId'],
+                raidPoints: $player['raidPoints'],
                 tacklePoints: $player['tacklePoints'],
-                superRaids:   $player['superRaids'],
+                superRaids: $player['superRaids'],
                 superTackles: $player['superTackles'],
-                bonusPoints:  $player['bonusPoints'],
-                totalPoints:  $total
+                bonusPoints: $player['bonusPoints'],
+                totalPoints: $total
             );
         }
 
         return new ScoreboardResponseDTO(
             teamBreakdowns: $teamBreakdowns,
-            playerStats:    $playerStats
+            playerStats: $playerStats
         );
     }
 }

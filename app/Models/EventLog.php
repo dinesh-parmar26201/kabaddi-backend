@@ -24,6 +24,9 @@ class EventLog extends Model
         'score_after_raid' => 'array',
     ];
 
+    protected $hidden = ['raid'];
+    protected $appends = ['raid_dto'];
+
     public function raid()
     {
         return $this->belongsTo(Raid::class, 'raid_number', 'raid_number');
