@@ -26,7 +26,7 @@ class RaidService implements RaidServiceInterface
         $matchTeamIds = $match->teams()->pluck('team_id')->toArray();
 
         if (!in_array($data['raid_team_id'], $matchTeamIds)) {
-            throw new \Exception('Selected team is not part of this match.');
+            throw new Exception('Selected team is not part of this match.');
         }
 
         $validPlayers = $match->matchPlayers()
