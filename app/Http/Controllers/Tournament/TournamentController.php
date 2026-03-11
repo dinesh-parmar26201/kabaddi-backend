@@ -119,7 +119,7 @@ class TournamentController extends Controller
 
         return response()->json([
             'message' => 'Tournament matches retrieved successfully',
-            'data' => MatchResponseDTO::fromModels($matches)
+            'data' => MatchResponseDTO::fromModels($matches, ['teamBreakdowns'])
         ]);
     }
 
