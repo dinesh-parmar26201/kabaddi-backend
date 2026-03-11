@@ -68,8 +68,8 @@ class PlayerStatsService implements PlayerStatsServiceInterface
         return [
             'total_matches' => $totalMatches,
             'total_points' => $raidPoints + $tacklePoints,
-            'total_raid_points' => $raidPoints,
-            'total_tackle_points' => $tacklePoints,
+            'total_raid_points' => $raidPoints + $bonusPoints,
+            'total_tackle_points' => $tacklePoints + $superTackles,
 
             'raid_stats' => [
                 'touch_points' => $raidPoints,
