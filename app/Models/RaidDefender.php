@@ -9,4 +9,9 @@ class RaidDefender extends Model
         'raid_id',
         'user_id',
     ];
+
+    public function raid()
+    {
+        return $this->belongsTo(Raid::class);
+    }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Match\MatchController;
 use App\Http\Controllers\Raid\RaidController;
 use App\Http\Controllers\ScoreboardController;
 use App\Http\Controllers\Tournament\TournamentController;
+use App\Http\Controllers\User\PlayerStatsController;
 
 Route::post('login', [AuthController::class, 'login']);
 
@@ -17,6 +18,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('update', [UserController::class, 'update']);
         Route::get('profile', [UserController::class, 'profile']);
         Route::post('search', [UserController::class, 'search']);
+        Route::get('stats', [PlayerStatsController::class, 'show']);
     });
 
     Route::prefix('team')->group(function () {
