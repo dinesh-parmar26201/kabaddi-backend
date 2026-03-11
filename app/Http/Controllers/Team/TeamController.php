@@ -104,7 +104,7 @@ class TeamController extends Controller
 
         return response()->json([
             'message' => 'Team matches retrieved successfully',
-            'data' => MatchResponseDTO::fromModels($matches, ['teams'])
+            'data' => MatchResponseDTO::fromModels($matches, ['teams', 'teamBreakdowns'])
         ]);
     }
 
