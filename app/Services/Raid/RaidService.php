@@ -128,6 +128,7 @@ class RaidService implements RaidServiceInterface
                         'raid_id' => $raid->id,
                         'match_id' => $raid->match_id,
                         'defender_id' => $defenderId,
+                        'user_id' => $defenderId
                     ]);
                 }
             }
