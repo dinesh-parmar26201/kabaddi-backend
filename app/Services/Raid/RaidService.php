@@ -214,7 +214,7 @@ class RaidService implements RaidServiceInterface
                     ->where('team_id', $opponentTeamId)
                     ->update([
                         'is_playing' => true,
-                        'is_substitute' => false,
+                        //'is_substitute' => false,
                         'updated_at' => now(),
                     ]);
             }
