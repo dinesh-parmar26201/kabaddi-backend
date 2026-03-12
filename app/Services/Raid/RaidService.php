@@ -130,6 +130,14 @@ class RaidService implements RaidServiceInterface
                         'defender_id' => $defenderId,
                         'user_id' => $defenderId
                     ]);
+
+                    // Player OUT
+                    $match->matchPlayers()
+                        ->where('user_id', $defenderId)
+                        ->update([
+                            'is_playing' => false,
+                            'updated_at' => now(),
+                        ]);
                 }
             }
             if ($data['half'] == 1) {
@@ -144,6 +152,7 @@ class RaidService implements RaidServiceInterface
 
             // 1 point per defender out
             $pointsEarned += count($data['defenders'] ?? []);
+            $pointsEarned += count($data['defender_lineouts'] ?? []);
 
             // Bonus
             if (!empty($data['bonus_point'])) {
