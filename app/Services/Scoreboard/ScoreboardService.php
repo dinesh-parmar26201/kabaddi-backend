@@ -239,7 +239,7 @@ class ScoreboardService implements ScoreboardServiceInterface
             $total = $player['raidPoints']
                 + $player['tacklePoints']
                 + $player['bonusPoints']
-                + $player['superRaids']
+                //+ $player['superRaids']
                 + $player['superTackles'];
 
             $playerStats[] = new PlayerStatsDTO(
