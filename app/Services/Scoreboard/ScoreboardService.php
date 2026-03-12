@@ -152,11 +152,22 @@ class ScoreboardService implements ScoreboardServiceInterface
             */
             if ($raid->outcome === 'unsuccessful') {
 
+                // Defender lineouts → raiding team gets points
+                $lineoutCount = $raid->defenderLineouts->count();
+
+                if ($lineoutCount > 0) {
+                    $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
+
+                    if (isset($playerStatsMap[$raid->raider_id])) {
+                        $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
+                    }
+                }
+
                 if ($hasTackler) {
                     $tackler = $raid->tacklers;
 
                     if ($raid->super_tackle) {
-                        // Super tackle → +2
+
                         $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
 
                         if (isset($playerStatsMap[$tackler->user_id])) {
@@ -164,8 +175,9 @@ class ScoreboardService implements ScoreboardServiceInterface
                             $playerStatsMap[$tackler->user_id]['superTackles'] += 1;
                             $teamsMap[$defendingTeamId]['superTackles'] += 1;
                         }
+
                     } else {
-                        // Normal tackle → +1
+
                         $teamsMap[$defendingTeamId]['tacklePoints'] += 1;
 
                         if (isset($playerStatsMap[$tackler->user_id])) {
@@ -174,7 +186,6 @@ class ScoreboardService implements ScoreboardServiceInterface
                     }
                 }
 
-                // Bonus on unsuccessful raid
                 if ($raid->bonus_point) {
                     $teamsMap[$raidingTeamId]['extraPoints'] += 1;
 
