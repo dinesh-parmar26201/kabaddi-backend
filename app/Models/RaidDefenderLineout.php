@@ -10,6 +10,7 @@ class RaidDefenderLineout extends Model
         'raid_id',
         'match_id',
         'defender_id',
+        'user_id'
     ];
 
     public function raid()
