@@ -169,11 +169,11 @@ class RaidService implements RaidServiceInterface
                     ->take($pointsEarned)
                     ->get();
 
-                foreach ($outPlayers as $player) {
-                    $player->is_playing = true;
-                    $player->is_substitute = false;
-                    $player->save();
-                }
+                // foreach ($outPlayers as $player) {
+                //     $player->is_playing = true;
+                //     $player->is_substitute = false;
+                //     $player->save();
+                // }
             }
 
             if (!empty($data['raider_lineout'])) {
@@ -363,7 +363,9 @@ class RaidService implements RaidServiceInterface
             ->get();
 
         foreach ($outPlayers as $player) {
-            $player->update(['is_playing' => true, 'is_substitute' => false]);
+            $player->update(['is_playing' => true
+            //, 'is_substitute' => false
+        ]);
         }
     }
 }
