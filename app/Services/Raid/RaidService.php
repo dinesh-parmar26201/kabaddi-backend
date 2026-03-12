@@ -212,6 +212,7 @@ class RaidService implements RaidServiceInterface
                 // Revive entire team
                 $match->matchPlayers()
                     ->where('team_id', $opponentTeamId)
+                    ->where('is_substitute', false)
                     ->update([
                         'is_playing' => true,
                         //'is_substitute' => false,
