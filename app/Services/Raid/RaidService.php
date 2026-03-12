@@ -92,8 +92,19 @@ class RaidService implements RaidServiceInterface
                     'user_id' => $defender,
                 ]);
 
+                if ($data['outcome'] == 'successful') {
+                    $match->matchPlayers()
+                        ->where('user_id', $defender)
+                        ->update([
+                            'is_playing' => false,
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
+
+            if ($data['outcome'] == 'unsuccessful') {
                 $match->matchPlayers()
-                    ->where('user_id', $defender)
+                    ->where('user_id', $data['raider_id'])
                     ->update([
                         'is_playing' => false,
                         'updated_at' => now(),
