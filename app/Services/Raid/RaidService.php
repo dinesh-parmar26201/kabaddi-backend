@@ -31,7 +31,7 @@ class RaidService implements RaidServiceInterface
 
         $validPlayers = $match->matchPlayers()
             ->where('team_id', $data['raid_team_id'])
-            ->where('is_playing', true)
+            // ->where('is_playing', true)
             ->pluck('user_id')
             ->toArray();
 
@@ -92,24 +92,24 @@ class RaidService implements RaidServiceInterface
                     'user_id' => $defender,
                 ]);
 
-                if ($data['outcome'] == 'successful') {
-                    $match->matchPlayers()
-                        ->where('user_id', $defender)
-                        ->update([
-                            'is_playing' => false,
-                            'updated_at' => now(),
-                        ]);
-                }
+                // if ($data['outcome'] == 'successful') {
+                //     $match->matchPlayers()
+                //         ->where('user_id', $defender)
+                //         ->update([
+                //             'is_playing' => false,
+                //             'updated_at' => now(),
+                //         ]);
+                // }
             }
 
-            if ($data['outcome'] == 'unsuccessful') {
-                $match->matchPlayers()
-                    ->where('user_id', $data['raider_id'])
-                    ->update([
-                        'is_playing' => false,
-                        'updated_at' => now(),
-                    ]);
-            }
+            // if ($data['outcome'] == 'unsuccessful') {
+            //     $match->matchPlayers()
+            //         ->where('user_id', $data['raider_id'])
+            //         ->update([
+            //             'is_playing' => false,
+            //             'updated_at' => now(),
+            //         ]);
+            // }
 
             // Save tacklers
             // foreach ($data['tacklers'] ?? [] as $tackler) {
@@ -132,12 +132,12 @@ class RaidService implements RaidServiceInterface
                     ]);
 
                     // Player OUT
-                    $match->matchPlayers()
-                        ->where('user_id', $defenderId)
-                        ->update([
-                            'is_playing' => false,
-                            'updated_at' => now(),
-                        ]);
+                    // $match->matchPlayers()
+                    //     ->where('user_id', $defenderId)
+                    //     ->update([
+                    //         'is_playing' => false,
+                    //         'updated_at' => now(),
+                    //     ]);
                 }
             }
             if ($data['half'] == 1) {
@@ -159,20 +159,20 @@ class RaidService implements RaidServiceInterface
                 $pointsEarned += 1;
             }
 
-            // Super tackle gives defending team 2 points
-            if (!empty($data['super_tackle'])) {
+            // // Super tackle gives defending team 2 points
+            // if (!empty($data['super_tackle'])) {
 
-                // Raider OUT
-                $match->matchPlayers()
-                    ->where('user_id', $data['raider_id'])
-                    ->update([
-                        'is_playing' => false,
-                        'updated_at' => now(),
-                    ]);
+            //     // Raider OUT
+            //     $match->matchPlayers()
+            //         ->where('user_id', $data['raider_id'])
+            //         ->update([
+            //             'is_playing' => false,
+            //             'updated_at' => now(),
+            //         ]);
 
-                // Defending team revives 2 players
-                //$this->revivePlayers($match, $defendingTeamId, 2);
-            }
+            //     // Defending team revives 2 players
+            //     //$this->revivePlayers($match, $defendingTeamId, 2);
+            // }
 
 
             // Raider out (tackle)
@@ -197,38 +197,38 @@ class RaidService implements RaidServiceInterface
                 // }
             }
 
-            if (!empty($data['raider_lineout'])) {
-                $match->matchPlayers()
-                    ->where('user_id', $data['raider_id'])
-                    ->update([
-                        'is_playing' => false,
-                        'updated_at' => now(),
-                    ]);
-            }
+            // if (!empty($data['raider_lineout'])) {
+            //     $match->matchPlayers()
+            //         ->where('user_id', $data['raider_id'])
+            //         ->update([
+            //             'is_playing' => false,
+            //             'updated_at' => now(),
+            //         ]);
+            // }
 
-            $opponentTeamId = collect($match->teams)
-                ->pluck('team_id')
-                ->first(fn($id) => $id != $data['raid_team_id']);
+            // $opponentTeamId = collect($match->teams)
+            //     ->pluck('team_id')
+            //     ->first(fn($id) => $id != $data['raid_team_id']);
 
-            $remaining = $match->matchPlayers()
-                ->where('team_id', $opponentTeamId)
-                ->where('is_playing', true)
-                ->count();
+            // $remaining = $match->matchPlayers()
+            //     ->where('team_id', $opponentTeamId)
+            //     ->where('is_playing', true)
+            //     ->count();
 
-            if ($remaining == 0) {
+            // if ($remaining == 0) {
 
-                // Give 2 extra points (via scoreboard logic ideally)
+            //     // Give 2 extra points (via scoreboard logic ideally)
 
-                // Revive entire team
-                $match->matchPlayers()
-                    ->where('team_id', $opponentTeamId)
-                    ->where('is_substitute', false)
-                    ->update([
-                        'is_playing' => true,
-                        //'is_substitute' => false,
-                        'updated_at' => now(),
-                    ]);
-            }
+            //     // Revive entire team
+            //     $match->matchPlayers()
+            //         ->where('team_id', $opponentTeamId)
+            //         ->where('is_substitute', false)
+            //         ->update([
+            //             'is_playing' => true,
+            //             //'is_substitute' => false,
+            //             'updated_at' => now(),
+            //         ]);
+            // }
         });
         $raid = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
             ->where('match_id', $matchId)
