@@ -147,7 +147,7 @@ class ScoreboardService implements ScoreboardServiceInterface
             |                             (super tackle replaces regular tackle point,
             |                              so net = +2 to team and +2 to tackler)
             | - bonus point on empty   → raiding team +1 extra + raider +1 bonus
-            | - raider lineout          → no points (recorder only)
+            | - raider lineout          → defending team +1
             |--------------------------------------------------------------------------
             */
             if ($raid->outcome === 'unsuccessful') {
@@ -192,6 +192,10 @@ class ScoreboardService implements ScoreboardServiceInterface
                     if (isset($playerStatsMap[$raid->raider_id])) {
                         $playerStatsMap[$raid->raider_id]['bonusPoints'] += 1;
                     }
+                }
+
+                if ($raid->raider_lineout) {
+                    $teamsMap[$defendingTeamId]['extraPoints'] += 1;
                 }
             }
         }

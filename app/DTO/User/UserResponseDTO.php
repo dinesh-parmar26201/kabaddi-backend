@@ -11,6 +11,7 @@ class UserResponseDTO
         $data = [
             'id' => $user->id,
             'name' => $user->fullname,
+            'jersey_no' => $user->jersey_no,
             'phone' => $user->phone,
             'fcm_token' => $user->fcm_token,
             'dob' => $user->dob,
