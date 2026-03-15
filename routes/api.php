@@ -70,7 +70,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('events')->group(function () {
         Route::get('/', [EventController::class, 'index']);
         Route::post('/', [EventController::class, 'store']);
-        Route::put('{event}', [EventController::class, 'update']);
+        Route::post('{event}', [EventController::class, 'update']);
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

@@ -54,7 +54,21 @@ class EventService implements EventServiceInterface
 
     public function update(EventLog $event, array $data): EventLog
     {
-        $event->update($data);
+        $event->update([
+            'type' => $data['event_type'] ?? $event->type,
+            'team_id' => $data['team_id'] ?? $event->team_id,
+            'match_id' => $data['match_id'] ?? $event->match_id,
+            'raid_id' => $data['raid_id'] ?? $event->raid_id,
+            'half' => $data['half'] ?? $event->half,
+            'raid_number' => $data['raid_number'] ?? $event->raid_number,
+            'summary' => $data['summary'] ?? $event->summary,
+        ]);
+
+        $scoreService = app(ScoreboardServiceInterface::class);
+        $scoreboard = $scoreService->getMatchScoreboard($data['match_id']);
+        $event->score_after_raid = $scoreboard->teamBreakdowns ?? [];
+        $event->save();
+        
         return $event->refresh();
     }
 }

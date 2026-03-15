@@ -17,8 +17,10 @@ class UpdateEventRequest extends FormRequest
     {
         return [
             'event_type' => ['sometimes', new Enum(EventType::class)],
-            'team_id' => ['sometimes', 'integer', 'exists:teams,id'],
-            'half' => ['sometimes', 'integer'],
+            'team_id' => ['nullable', 'integer', 'exists:teams,id'],
+            'match_id' => ['nullable', 'integer', 'exists:matches,id'],
+            'raid_id' => ['nullable', 'integer', 'exists:raids,id'],
+            'half' => ['nullable', 'integer'],
             'raid_number' => ['nullable', 'integer'],
             'summary' => ['nullable', 'string'],
             'score_after_raid' => ['nullable', 'array'],
