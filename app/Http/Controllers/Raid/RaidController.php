@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Raid\StoreRaidRequest;
 use App\DTO\RaidResponseDTO;
 use App\Http\Requests\Raid\StoreSkipRaidRequest;
+use App\Http\Requests\Raid\UpdateRaidRequest;
 use App\Services\Raid\RaidServiceInterface;
 
 class RaidController extends Controller
@@ -34,7 +35,7 @@ class RaidController extends Controller
         ]);
     }
 
-    public function update(int $match, int $raid, StoreRaidRequest $request)
+    public function update(int $match, int $raid, UpdateRaidRequest $request)
     {
         $raid = $this->raidService->update($match, $raid, $request->validated());
 

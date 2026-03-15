@@ -254,12 +254,21 @@ class RaidService implements RaidServiceInterface
     public function update(int $matchId, int $raidId, array $data): Raid
     {
         $match = GameMatch::findOrFail($matchId);
-        return DB::transaction(function () use ($matchId, $raidId, $data, $match) {
 
-            $raid = Raid::where('match_id', $matchId)
-                ->findOrFail($raidId);
+        $raid = Raid::where('match_id', $matchId)
+            ->findOrFail($raidId);
 
-            $raid->update($data);
+        DB::transaction(function () use ($matchId, $raidId, $data, $match, $raid) {
+
+            $raid->update([
+                'raider_id' => $data['raider_id'],
+                'outcome' => $data['outcome'],
+                'bonus_point' => $data['bonus_point'] ?? false,
+                'super_raid' => $data['super_raid'] ?? false,
+                'super_tackle' => $data['super_tackle'] ?? false,
+                'raider_lineout' => $data['raider_lineout'] ?? false,
+                'all_out' => $data['all_out'] ?? false
+            ]);
 
             $raid->defenders()->delete();
             $raid->tacklers()->delete();
@@ -291,15 +300,26 @@ class RaidService implements RaidServiceInterface
                     ]);
                 }
             }
-            if ($data['half'] == 1) {
-                $match->status = MatchStatus::FIRST_HALF;
-            } else if ($data['half'] == 2) {
-                $match->status = MatchStatus::SECOND_HALF;
-            }
+            // if ($data['half'] == 1) {
+            //     $match->status = MatchStatus::FIRST_HALF;
+            // } else if ($data['half'] == 2) {
+            //     $match->status = MatchStatus::SECOND_HALF;
+            // }
             $match->save();
 
-            return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
+            $scoreService = app(ScoreboardServiceInterface::class);
+            $scoreboard = $scoreService->getMatchScoreboard($match->id);
+            $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
+
+            if (isset($data['event_summary'])) {
+                $raid->eventLog()->update(
+                    [
+                        'summary' => $data['event_summary'],
+                    ]
+                );
+            }
         });
+        return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
     }
 
     public function undoLastRaid(int $matchId): void
@@ -339,11 +359,6 @@ class RaidService implements RaidServiceInterface
             ->orderBy('raid_number', 'desc')
             ->value('raid_number') ?? 0;
         $raidNumber += 1;
-
-        $raid = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
-            ->where('match_id', $matchId)
-            ->where('raid_number', $raidNumber)
-            ->first();
 
         DB::transaction(function () use ($matchId, $data, $raidNumber) {
 
@@ -386,9 +401,10 @@ class RaidService implements RaidServiceInterface
             ->get();
 
         foreach ($outPlayers as $player) {
-            $player->update(['is_playing' => true
-            //, 'is_substitute' => false
-        ]);
+            $player->update([
+                'is_playing' => true
+                //, 'is_substitute' => false
+            ]);
         }
     }
 }
