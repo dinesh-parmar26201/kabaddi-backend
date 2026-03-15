@@ -134,7 +134,7 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 // All-out bonus
                 if ($raid->all_out) {
-                    $teamsMap[$defendingTeamId]['allOutPoints'] += 2;
+                    $teamsMap[$raidingTeamId]['allOutPoints'] += 2;
                 }
             }
 
@@ -147,7 +147,8 @@ class ScoreboardService implements ScoreboardServiceInterface
             |                             (super tackle replaces regular tackle point,
             |                              so net = +2 to team and +2 to tackler)
             | - bonus point on empty   → raiding team +1 extra + raider +1 bonus
-            | - raider lineout          → defending team +1
+            | - raider lineout         → defending team +1
+            | - all members of raiding team are out (all-out) → defending team +2 all-out points
             |--------------------------------------------------------------------------
             */
             if ($raid->outcome === 'unsuccessful') {
@@ -196,6 +197,11 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 if ($raid->raider_lineout) {
                     $teamsMap[$defendingTeamId]['extraPoints'] += 1;
+                }
+
+                // All-out bonus
+                if ($raid->all_out) {
+                    $teamsMap[$defendingTeamId]['allOutPoints'] += 2;
                 }
             }
         }
