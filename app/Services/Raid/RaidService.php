@@ -31,7 +31,7 @@ class RaidService implements RaidServiceInterface
 
         $validPlayers = $match->matchPlayers()
             ->where('team_id', $data['raid_team_id'])
-            ->where('is_playing', true)
+            // ->where('is_playing', true)
             ->pluck('user_id')
             ->toArray();
 

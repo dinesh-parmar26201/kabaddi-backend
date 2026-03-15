@@ -15,6 +15,7 @@ class UserUpdateRequest extends FormRequest
     {
         return [
             'name'      => 'required|string|max:255',
+            'jersey_no' => 'nullable|integer|min:0',
             'phone'     => 'required|numeric|digits:10',
             'dob'       => 'required|date_format:Y/m/d',
             'state'     => 'required|string|max:255',

@@ -15,6 +15,7 @@ class UserService implements UserServiceInterface
 
             $data = [
                 'fullname'  => $request->name,
+                'jersey_no' => $request->jersey_no,
                 'phone'     => $request->phone,
                 'dob'       => $request->dob,
                 'state'     => $request->state,
@@ -53,6 +54,7 @@ class UserService implements UserServiceInterface
             ->orWhere('city', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('state', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('country', 'LIKE', '%' . $searchTerm . '%')
+            ->orWhere('jersey_no', 'LIKE', '%' . $searchTerm . '%')
             ->get();
     }
 }
