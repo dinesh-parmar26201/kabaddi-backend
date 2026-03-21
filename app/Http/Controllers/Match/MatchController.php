@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Match;
 
-use Illuminate\Http\Request;
 use App\DTO\MatchResponseDTO;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Match\TossRequest;
-use App\Services\Match\MatchServiceInterface;
 use App\Http\Requests\Match\CreateMatchRequest;
+use App\Http\Requests\Match\SwapPlayerRequest;
+use App\Http\Requests\Match\TossRequest;
 use App\Http\Requests\Match\UpdateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
+use App\Services\Match\MatchServiceInterface;
+use Illuminate\Http\Request;
 
 class MatchController extends Controller
 {
@@ -48,7 +49,8 @@ class MatchController extends Controller
             [
                 'message' => 'Match list fetched successfully',
                 'data' => MatchResponseDTO::fromModels(
-                    $this->matchService->list(), ['teams', 'teamBreakdowns']
+                    $this->matchService->list(),
+                    ['teams', 'teamBreakdowns']
                 )
             ]
         );
@@ -61,7 +63,8 @@ class MatchController extends Controller
                 'message' => 'Match details fetched successfully',
                 'data' =>
                 MatchResponseDTO::fromModel(
-                    $this->matchService->detail($id), ['teams', 'raids', 'teamBreakdowns']
+                    $this->matchService->detail($id),
+                    ['teams', 'raids', 'teamBreakdowns']
                 )
             ]
         );
@@ -102,5 +105,15 @@ class MatchController extends Controller
                 "data" => MatchResponseDTO::fromModel($match, ['teams'])
             ]
         );
+    }
+
+    public function swap(SwapPlayerRequest $request, int $matchId)
+    {
+        $this->matchService->swapPlayers($matchId, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Players swapped successfully'
+        ]);
     }
 }

@@ -3,13 +3,15 @@
 namespace App\Services\Match;
 
 use App\Enums\MatchStatus;
-use App\Models\GameMatch;
-use App\Models\MatchTeam;
-use App\Models\TeamPlayer;
-use App\Models\MatchPlayer;
 use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
+use App\Models\GameMatch;
+use App\Models\MatchPlayer;
+use App\Models\MatchTeam;
+use App\Models\TeamPlayer;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class MatchService implements MatchServiceInterface
 {
@@ -192,5 +194,43 @@ class MatchService implements MatchServiceInterface
                 'is_playing'    => !($player['is_substitute'] ?? false),
             ]);
         }
+    }
+
+    public function swapPlayers(int $matchId, array $data): void
+    {
+        DB::transaction(function () use ($matchId, $data) {
+
+            $matchPlayers = MatchPlayer::where('match_id', $matchId)
+                ->where('team_id', $data['team_id'])
+                ->get()
+                ->keyBy('user_id');
+
+            $inPlayer = $matchPlayers->get($data['in_player_id']);
+            $outPlayer = $matchPlayers->get($data['out_player_id']);
+
+            // Validation
+            if (!$inPlayer || !$outPlayer) {
+                throw new Exception('Players must belong to this match and team.');
+            }
+
+            if ($inPlayer->is_playing) {
+                throw new Exception('Selected in_player is already playing.');
+            }
+
+            if (!$outPlayer->is_playing) {
+                throw new Exception('Selected out_player is already out.');
+            }
+
+            // Swap
+            $inPlayer->update([
+                'is_playing' => true,
+                'updated_at' => now()
+            ]);
+
+            $outPlayer->update([
+                'is_playing' => false,
+                'updated_at' => now()
+            ]);
+        });
     }
 }
