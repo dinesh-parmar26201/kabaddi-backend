@@ -16,4 +16,5 @@ interface MatchServiceInterface
     public function toss(int $matchId, array $data);
     public function updateTeamPlayers(UpdateMatchTeamPlayersRequest $request, int $matchId);
     public function updateTeamCourt(UpdateMatchTeamCourtRequest $request, int $matchId);
+    public function swapPlayers(int $matchId, array $data): void;
 }
