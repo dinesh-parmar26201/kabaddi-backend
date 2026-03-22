@@ -229,6 +229,17 @@ class RaidService implements RaidServiceInterface
                         'updated_at' => now(),
                     ]);
             }
+
+            if($data['outcome'] == 'unsuccessful' && ($data['all_out'] ?? false)) {
+                $match->matchPlayers()
+                    ->where('team_id', $data['raid_team_id'])
+                    ->where('is_substitute', false)
+                    ->update([
+                        'is_playing' => true,
+                        //'is_substitute' => false,
+                        'updated_at' => now(),
+                    ]);
+            }
         });
         $raid = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
             ->where('match_id', $matchId)
