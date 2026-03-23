@@ -171,7 +171,7 @@ class RaidService implements RaidServiceInterface
                     ]);
 
                 // Defending team revives 2 players
-                //$this->revivePlayers($match, $defendingTeamId, 2);
+                $this->revivePlayers($match, $defendingTeamId, 2);
             }
 
 
@@ -183,18 +183,21 @@ class RaidService implements RaidServiceInterface
             if ($pointsEarned > 0) {
 
                 // Get OUT players of raid team (FIFO order)
-                $outPlayers = $match->matchPlayers()
-                    ->where('team_id', $data['raid_team_id'])
-                    ->where('is_playing', false)
-                    ->orderBy('updated_at', 'asc') // first out first revive
-                    ->take($pointsEarned)
-                    ->get();
+                // $outPlayers = $match->matchPlayers()
+                //     ->where('team_id', $data['raid_team_id'])
+                //     ->where('is_playing', false)
+                //     ->where('is_substitute', false)
+                //     ->orderBy('updated_at', 'asc') // first out first revive
+                //     ->take($pointsEarned)
+                //     ->get();
 
                 // foreach ($outPlayers as $player) {
                 //     $player->is_playing = true;
                 //     $player->is_substitute = false;
                 //     $player->save();
                 // }
+
+                $this->revivePlayers($match, $data['raid_team_id'], $pointsEarned);
             }
 
             if (!empty($data['raider_lineout'])) {
@@ -230,7 +233,7 @@ class RaidService implements RaidServiceInterface
                     ]);
             }
 
-            if($data['outcome'] == 'unsuccessful' && ($data['all_out'] ?? false)) {
+            if ($data['outcome'] == 'unsuccessful' && ($data['all_out'] ?? false)) {
                 $match->matchPlayers()
                     ->where('team_id', $data['raid_team_id'])
                     ->where('is_substitute', false)
@@ -329,7 +332,7 @@ class RaidService implements RaidServiceInterface
             REPLAY RAIDS
             */
 
-            $raids = Raid::with(['defenders','tacklers','defenderLineouts'])
+            $raids = Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
                 ->where('match_id', $matchId)
                 ->orderBy('raid_number')
                 ->get();
@@ -384,10 +387,9 @@ class RaidService implements RaidServiceInterface
                 'summary' => $data['event_summary'] ?? '',
                 'score_after_raid' => $scoreboard->teamBreakdowns ?? []
             ]);
-
         });
 
-        return $raid->load(['defenders','tacklers','defenderLineouts']);
+        return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
     }
 
     public function undoLastRaid(int $matchId): void
@@ -464,6 +466,7 @@ class RaidService implements RaidServiceInterface
         $outPlayers = $match->matchPlayers()
             ->where('team_id', $teamId)
             ->where('is_playing', false)
+            ->where('is_substitute', false)
             ->orderBy('updated_at', 'asc')
             ->take($count)
             ->get();
