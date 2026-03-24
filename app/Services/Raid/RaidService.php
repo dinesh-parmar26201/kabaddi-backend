@@ -155,9 +155,9 @@ class RaidService implements RaidServiceInterface
             $pointsEarned += count($data['defender_lineouts'] ?? []);
 
             // Bonus
-            if (!empty($data['bonus_point'])) {
-                $pointsEarned += 1;
-            }
+            // if (!empty($data['bonus_point'])) {
+            //     $pointsEarned += 1;
+            // }
 
             // Super tackle gives defending team 2 points
             if (!empty($data['super_tackle'])) {

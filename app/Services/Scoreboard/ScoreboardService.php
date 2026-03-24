@@ -108,6 +108,17 @@ class ScoreboardService implements ScoreboardServiceInterface
                     }
                 }
 
+                // Defender lineouts → raiding team gets points
+                $lineoutCount = $raid->defenderLineouts->count();
+
+                if ($lineoutCount > 0) {
+                    $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
+
+                    if (isset($playerStatsMap[$raid->raider_id])) {
+                        $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
+                    }
+                }
+
                 // Bonus
                 if ($raid->bonus_point) {
                     $teamsMap[$raidingTeamId]['extraPoints'] += 1;
