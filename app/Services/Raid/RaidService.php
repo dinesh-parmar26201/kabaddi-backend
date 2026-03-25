@@ -178,6 +178,8 @@ class RaidService implements RaidServiceInterface
             // Raider out (tackle)
             if (!empty($data['raider_lineout'])) {
                 $pointsEarned = 0;
+
+                $this->revivePlayers($match, $defendingTeamId, 1);
             }
 
             if ($pointsEarned > 0) {
