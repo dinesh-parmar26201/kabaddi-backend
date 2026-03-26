@@ -127,7 +127,6 @@ class RaidService implements RaidServiceInterface
                         'raid_id' => $raid->id,
                         'match_id' => $raid->match_id,
                         'defender_id' => $defenderId,
-                        'user_id' => $defenderId
                     ]);
 
                     // Player OUT
@@ -284,7 +283,6 @@ class RaidService implements RaidServiceInterface
                         'raid_id' => $raid->id,
                         'match_id' => $raid->match_id,
                         'defender_id' => $defenderId,
-                        'user_id' => $defenderId
                     ]);
                 }
             }
@@ -327,7 +325,7 @@ class RaidService implements RaidServiceInterface
                 foreach ($r->defenderLineouts as $lineout) {
 
                     $match->matchPlayers()
-                        ->where('user_id', $lineout->user_id)
+                        ->where('user_id', $lineout->defender_id)
                         ->update([
                             'is_playing' => false,
                             'updated_at' => now()
