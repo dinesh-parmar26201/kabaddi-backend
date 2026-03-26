@@ -112,14 +112,13 @@ class RaidService implements RaidServiceInterface
             }
 
             // Save tacklers
-            // foreach ($data['tacklers'] ?? [] as $tackler) {
             if (isset($data['tackler'])) {
                 $raid->tacklers()->create([
                     'raid_id' => $raid->id,
                     'user_id' => $data['tackler'],
                 ]);
+                $this->revivePlayers($match, $defendingTeamId, 1);
             }
-            // }
 
             // Store defender lineouts
             if (!empty($data['defender_lineouts'])) {
@@ -174,34 +173,11 @@ class RaidService implements RaidServiceInterface
                 $this->revivePlayers($match, $defendingTeamId, 2);
             }
 
-
-            // Raider out (tackle)
-            if (!empty($data['raider_lineout'])) {
-                $pointsEarned = 0;
-
-                $this->revivePlayers($match, $defendingTeamId, 1);
-            }
-
             if ($pointsEarned > 0) {
-
-                // Get OUT players of raid team (FIFO order)
-                // $outPlayers = $match->matchPlayers()
-                //     ->where('team_id', $data['raid_team_id'])
-                //     ->where('is_playing', false)
-                //     ->where('is_substitute', false)
-                //     ->orderBy('updated_at', 'asc') // first out first revive
-                //     ->take($pointsEarned)
-                //     ->get();
-
-                // foreach ($outPlayers as $player) {
-                //     $player->is_playing = true;
-                //     $player->is_substitute = false;
-                //     $player->save();
-                // }
-
                 $this->revivePlayers($match, $data['raid_team_id'], $pointsEarned);
             }
 
+            // Raider lineout
             if (!empty($data['raider_lineout'])) {
                 $match->matchPlayers()
                     ->where('user_id', $data['raider_id'])
@@ -209,28 +185,21 @@ class RaidService implements RaidServiceInterface
                         'is_playing' => false,
                         'updated_at' => now(),
                     ]);
+                $this->revivePlayers($match, $defendingTeamId, 1);
             }
 
-            $opponentTeamId = collect($match->teams)
-                ->pluck('team_id')
-                ->first(fn($id) => $id != $data['raid_team_id']);
-
             $remaining = $match->matchPlayers()
-                ->where('team_id', $opponentTeamId)
+                ->where('team_id', $defendingTeamId)
                 ->where('is_playing', true)
                 ->count();
 
             if ($remaining == 0) {
-
-                // Give 2 extra points (via scoreboard logic ideally)
-
                 // Revive entire team
                 $match->matchPlayers()
-                    ->where('team_id', $opponentTeamId)
+                    ->where('team_id', $defendingTeamId)
                     ->where('is_substitute', false)
                     ->update([
                         'is_playing' => true,
-                        //'is_substitute' => false,
                         'updated_at' => now(),
                     ]);
             }
@@ -241,7 +210,6 @@ class RaidService implements RaidServiceInterface
                     ->where('is_substitute', false)
                     ->update([
                         'is_playing' => true,
-                        //'is_substitute' => false,
                         'updated_at' => now(),
                     ]);
             }
