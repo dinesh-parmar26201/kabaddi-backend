@@ -30,7 +30,7 @@ class UpdateRaidRequest extends FormRequest
             'defenders' => ['nullable', 'array', 'exists:users,id'],
 
             'tackler' => ['nullable', 'integer','exists:users,id'],
-            'defender_lineouts' => ['nullable', 'array', 'exists:match_players,id'],
+            'defender_lineouts' => ['nullable', 'array', 'exists:users,id'],
             'event_summary' => ['nullable', 'string'],
         ];
     }
