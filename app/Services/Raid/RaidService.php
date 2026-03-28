@@ -423,7 +423,7 @@ class RaidService implements RaidServiceInterface
             'raid_id' => $raid->id,
             'half' => $data['half'],
             'raid_number' => $raidNumber,
-            'summary' => $data['event_summary'],
+            'summary' => $data['event_summary'] ?? 'Raid skipped',
             'score_after_raid' => $data['teamBreakdowns'] ?? [],
         ]);
         return $raid->load(['defenders', 'tacklers', 'defenderLineouts']);
