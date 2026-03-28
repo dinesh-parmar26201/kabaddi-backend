@@ -37,6 +37,8 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'raiderLineoutPoints' => 0,
+                'defenderLineoutPoints' => 0,
                 'technicalPoints' => 0,
                 'superTackles'  => 0,
             ],
@@ -47,6 +49,8 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'raiderLineoutPoints' => 0,
+                'defenderLineoutPoints' => 0,
                 'technicalPoints' => 0,
                 'superTackles'  => 0,
             ],
@@ -69,6 +73,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'bonusPoints'  => 0,
                 'superRaids'   => 0,
                 'superTackles' => 0,
+                'defenderLineoutPoints' => 0,
             ];
         }
 
@@ -113,9 +118,11 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 if ($lineoutCount > 0) {
                     $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
+                    $teamsMap[$raidingTeamId]['defenderLineoutPoints'] += $lineoutCount;
 
                     if (isset($playerStatsMap[$raid->raider_id])) {
                         $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
+                        $playerStatsMap[$raid->raider_id]['defenderLineoutPoints'] += $lineoutCount;
                     }
                 }
 
@@ -169,9 +176,11 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 if ($lineoutCount > 0) {
                     $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
+                    $teamsMap[$raidingTeamId]['defenderLineoutPoints'] += $lineoutCount;
 
                     if (isset($playerStatsMap[$raid->raider_id])) {
                         $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
+                        $playerStatsMap[$raid->raider_id]['defenderLineoutPoints'] += $lineoutCount;
                     }
                 }
 
@@ -207,7 +216,8 @@ class ScoreboardService implements ScoreboardServiceInterface
                 }
 
                 if ($raid->raider_lineout) {
-                    $teamsMap[$defendingTeamId]['extraPoints'] += 1;
+                    // $teamsMap[$defendingTeamId]['extraPoints'] += 1;
+                    $teamsMap[$defendingTeamId]['raiderLineoutPoints'] += 1;
                 }
 
                 // All-out bonus
@@ -245,6 +255,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 + $team['tacklePoints']
                 + $team['allOutPoints']
                 + $team['extraPoints']
+                + $team['raiderLineoutPoints']
                 + $team['technicalPoints']
                 + $team['superTackles'];
 
@@ -255,6 +266,8 @@ class ScoreboardService implements ScoreboardServiceInterface
                 tacklePoints: $team['tacklePoints'],
                 allOutPoints: $team['allOutPoints'],
                 extraPoints: $team['extraPoints'],
+                raiderLineoutPoints: $team['raiderLineoutPoints'],
+                defenderLineoutPoints: $team['defenderLineoutPoints'],
                 technicalPoints: $team['technicalPoints'],
                 totalPoints: $total
             );
@@ -283,6 +296,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 superRaids: $player['superRaids'],
                 superTackles: $player['superTackles'],
                 bonusPoints: $player['bonusPoints'],
+                defenderLineoutPoints: $player['defenderLineoutPoints'],
                 totalPoints: $total
             );
         }

@@ -11,6 +11,8 @@ class TeamBreakdownDTO
         public int $tacklePoints,
         public int $allOutPoints,
         public int $extraPoints,
+        public int $raiderLineoutPoints,
+        public int $defenderLineoutPoints,
         public int $technicalPoints,
         public int $totalPoints
     ) {}
