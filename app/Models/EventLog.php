@@ -29,7 +29,7 @@ class EventLog extends Model
 
     public function raid()
     {
-        return $this->belongsTo(Raid::class, 'raid_number', 'raid_number');
+        return $this->belongsTo(Raid::class, 'raid_id', 'id');
     }
 
     public function getRaidDtoAttribute()
