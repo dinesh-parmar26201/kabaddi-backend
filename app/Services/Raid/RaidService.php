@@ -225,6 +225,7 @@ class RaidService implements RaidServiceInterface
         EventLog::create([
             'match_id' => $matchId,
             'raid_id' => $raid->id,
+            'team_id' => $data['raid_team_id'],
             'half' => $data['half'],
             'raid_number' => $raidNumber,
             'summary' => $data['event_summary'],
@@ -425,6 +426,8 @@ class RaidService implements RaidServiceInterface
 
         EventLog::create([
             'match_id' => $matchId,
+            'type' => 'skip',
+            'team_id' => $data['raid_team_id'],
             'raid_id' => $raid->id,
             'half' => $data['half'],
             'raid_number' => $raidNumber,

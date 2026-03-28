@@ -11,6 +11,7 @@ enum EventType: string
     case SUPER_TACKLE = 'super_tackle';
     case LINEOUT = 'lineout';
     case TECHNICAL_POINT = 'technical_point';
+    case SKIP = 'skip';
 
     public static function values(): array
     {
