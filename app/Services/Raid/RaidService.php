@@ -392,6 +392,11 @@ class RaidService implements RaidServiceInterface
     public function skip(int $matchId, array $data): Raid
     {
         $match = GameMatch::with(['teams', 'matchPlayers'])->findOrFail($matchId);
+        $matchTeamIds = $match->teams()->pluck('team_id')->toArray();
+
+        if (!in_array($data['raid_team_id'], $matchTeamIds)) {
+            throw new Exception('Selected team is not part of this match.');
+        }
 
         $raidNumber = Raid::query()->where('match_id', $matchId)
             ->orderBy('raid_number', 'desc')
