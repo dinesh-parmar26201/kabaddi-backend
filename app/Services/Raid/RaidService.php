@@ -291,11 +291,12 @@ class RaidService implements RaidServiceInterface
             /*
             RESET MATCH STATE
             */
-
-            // $match->matchPlayers()->update([
-            //     'is_playing' => true,
-            //     'updated_at' => now(),
-            // ]);
+            $match->matchPlayers()
+                ->where('is_substitute', false)
+                ->update([
+                    'is_playing' => true,
+                    'updated_at' => now()
+                ]);
 
             /*
             REPLAY RAIDS
