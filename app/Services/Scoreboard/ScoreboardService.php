@@ -117,13 +117,13 @@ class ScoreboardService implements ScoreboardServiceInterface
                 $lineoutCount = $raid->defenderLineouts->count();
 
                 if ($lineoutCount > 0) {
-                    $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
+                    // $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
                     $teamsMap[$raidingTeamId]['defenderLineoutPoints'] += $lineoutCount;
 
-                    if (isset($playerStatsMap[$raid->raider_id])) {
-                        $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
-                        $playerStatsMap[$raid->raider_id]['defenderLineoutPoints'] += $lineoutCount;
-                    }
+                    // if (isset($playerStatsMap[$raid->raider_id])) {
+                    //     $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
+                    //     $playerStatsMap[$raid->raider_id]['defenderLineoutPoints'] += $lineoutCount;
+                    // }
                 }
 
                 // Bonus
@@ -175,13 +175,13 @@ class ScoreboardService implements ScoreboardServiceInterface
                 $lineoutCount = $raid->defenderLineouts->count();
 
                 if ($lineoutCount > 0) {
-                    $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
+                    // $teamsMap[$raidingTeamId]['raidPoints'] += $lineoutCount;
                     $teamsMap[$raidingTeamId]['defenderLineoutPoints'] += $lineoutCount;
 
-                    if (isset($playerStatsMap[$raid->raider_id])) {
-                        $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
-                        $playerStatsMap[$raid->raider_id]['defenderLineoutPoints'] += $lineoutCount;
-                    }
+                    // if (isset($playerStatsMap[$raid->raider_id])) {
+                    //     $playerStatsMap[$raid->raider_id]['raidPoints'] += $lineoutCount;
+                    //     $playerStatsMap[$raid->raider_id]['defenderLineoutPoints'] += $lineoutCount;
+                    // }
                 }
 
                 if ($hasTackler) {
@@ -256,6 +256,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 + $team['allOutPoints']
                 + $team['extraPoints']
                 + $team['raiderLineoutPoints']
+                + $team['defenderLineoutPoints']
                 + $team['technicalPoints']
                 + $team['superTackles'];
 
@@ -296,7 +297,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 superRaids: $player['superRaids'],
                 superTackles: $player['superTackles'],
                 bonusPoints: $player['bonusPoints'],
-                defenderLineoutPoints: $player['defenderLineoutPoints'],
+                // defenderLineoutPoints: $player['defenderLineoutPoints'],
                 totalPoints: $total
             );
         }
