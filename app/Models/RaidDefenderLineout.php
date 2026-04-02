@@ -9,8 +9,7 @@ class RaidDefenderLineout extends Model
     protected $fillable = [
         'raid_id',
         'match_id',
-        'defender_id',
-        'user_id'
+        'defender_id'
     ];
 
     public function raid()

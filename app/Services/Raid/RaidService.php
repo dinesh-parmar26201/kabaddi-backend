@@ -87,12 +87,13 @@ class RaidService implements RaidServiceInterface
 
             // Save defenders
             foreach ($data['defenders'] ?? [] as $defender) {
-                $raid->defenders()->create([
-                    'raid_id' => $raid->id,
-                    'user_id' => $defender,
-                ]);
-
                 if ($data['outcome'] == 'successful') {
+
+                    $raid->defenders()->create([
+                        'raid_id' => $raid->id,
+                        'user_id' => $defender,
+                    ]);
+
                     $match->matchPlayers()
                         ->where('user_id', $defender)
                         ->update([
@@ -189,6 +190,7 @@ class RaidService implements RaidServiceInterface
 
             $remaining = $match->matchPlayers()
                 ->where('team_id', $defendingTeamId)
+                ->where('is_substitute', false)
                 ->where('is_playing', true)
                 ->count();
 
@@ -364,18 +366,160 @@ class RaidService implements RaidServiceInterface
 
     public function undoLastRaid(int $matchId): void
     {
-        DB::transaction(function () use ($matchId) {
+        $match = GameMatch::with(['teams', 'matchPlayers'])->findOrFail($matchId);
 
-            $lastRaid = Raid::where('match_id', $matchId)
+        DB::transaction(function () use ($match) {
+
+            $lastRaid = Raid::where('match_id', $match->id)
                 ->latest('raid_number')
                 ->firstOrFail();
 
-            $lastRaid->defenders()->delete();
-            $lastRaid->tacklers()->delete();
+            $teamIds = $match->teams->pluck('team_id');
+
+            $defendingTeamId = $teamIds->first(function ($id) use ($lastRaid) {
+                return $id != $lastRaid->raid_team_id;
+            });
+
+            // Calculate raid points
+            $pointsEarned = 0;
+
+            $defenders = $lastRaid->defenders();
+            // 1 point per defender out
+            $pointsEarned += $defenders->count();
+
+            foreach ($defenders as $defender) {
+                if ($lastRaid->outcome == 'successful') {
+                    $lastDefender = $match->matchPlayers()
+                        ->where('user_id', $defender->user_id)
+                        ->where('is_playing', true)
+                        ->first() ?? null;
+
+                    $lastDefenderUserId = $lastDefender ? $lastDefender->user_id : null;
+
+                    $match->matchPlayers()
+                        ->where('user_id', $defender->user_id)
+                        ->update([
+                            'is_playing' => true,
+                            'updated_at' => now(),
+                        ]);
+
+                    $defender->delete();
+                }
+            }
+
+            if ($lastRaid->outcome == 'unsuccessful') {
+                $match->matchPlayers()
+                    ->where('user_id', $lastRaid->raider_id)
+                    ->update([
+                        'is_playing' => true,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            $tacklers = $lastRaid->tacklers();
+            foreach ($tacklers as $tackler) {
+                $tackler->delete();
+                $this->killPlayers($match, $defendingTeamId, 1);
+            }
+
+            // Delete defender lineouts
+            $defenderLineouts = $lastRaid->defenderLineouts();
+            $pointsEarned += $defenderLineouts->count();
+
+            foreach ($defenderLineouts as $defender) {
+
+                $lastDefender = $match->matchPlayers()
+                    ->where('user_id', $defender->defender_id)
+                    ->where('is_playing', true)
+                    ->first() ?? null;
+                $lastDefenderUserId = $lastDefender ? $lastDefender->defender_id : null;
+
+                // Player OUT
+                $match->matchPlayers()
+                    ->where('user_id', $defender->defender_id)
+                    ->update([
+                        'is_playing' => true,
+                        'updated_at' => now(),
+                    ]);
+                $defender->delete();
+            }
+
+            // Super tackle gives defending team 2 points so we need to kill 2 players
+            if ($lastRaid->super_tackle) {
+
+                // Raider Revived
+                $match->matchPlayers()
+                    ->where('user_id', $lastRaid->raider_id)
+                    ->update([
+                        'is_playing' => true,
+                        'updated_at' => now(),
+                    ]);
+
+                // Defending team kills 2 players
+                $this->killPlayers($match, $defendingTeamId, 2);
+            }
+
+            if ($pointsEarned > 0) {
+                $this->killPlayers($match, $lastRaid->raid_team_id, $pointsEarned);
+            }
+
+            // Raider lineout
+            if ($lastRaid->raider_lineout) {
+                $match->matchPlayers()
+                    ->where('user_id', $lastRaid->raider_id)
+                    ->update([
+                        'is_playing' => true,
+                        'updated_at' => now(),
+                    ]);
+                $this->killPlayers($match, $defendingTeamId, 1);
+            }
+
+            $defendingTeamplayerCount = $match->matchPlayers()
+                ->where('team_id', $defendingTeamId)
+                ->where('is_substitute', false)
+                ->count();
+
+            $remainingCount = $match->matchPlayers()
+                ->where('team_id', $defendingTeamId)
+                ->where('is_substitute', false)
+                ->where('is_playing', true)
+                ->count();
+
+            if ($remainingCount == $defendingTeamplayerCount && $lastDefenderUserId) {
+                // Kill entire team
+                $match->matchPlayers()
+                    ->where('team_id', $defendingTeamId)
+                    ->where('is_substitute', false)
+                    ->update([
+                        'is_playing' => false,
+                        'updated_at' => now(),
+                    ]);
+
+                $match->matchPlayers()
+                    ->where('team_id', $defendingTeamId)
+                    ->where('user_id', $lastDefenderUserId)
+                    ->where('is_substitute', false)
+                    ->update([
+                        'is_playing' => true,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            if ($lastRaid->outcome == 'unsuccessful' && ($lastRaid->all_out ?? false)) {
+                $match->matchPlayers()
+                    ->where('team_id', $lastRaid->raid_team_id)
+                    ->where('is_substitute', false)
+                    ->update([
+                        'is_playing' => false,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            $lastRaid->eventLog()->delete();
             $lastRaid->delete();
         });
-        $match = GameMatch::findOrFail($matchId);
-        $lastRaid = Raid::where('match_id', $matchId)
+
+        $lastRaid = Raid::where('match_id', $match->id)
             ->latest('raid_number')
             ->first();
 
@@ -451,6 +595,24 @@ class RaidService implements RaidServiceInterface
         foreach ($outPlayers as $player) {
             $player->update([
                 'is_playing' => true
+                //, 'is_substitute' => false
+            ]);
+        }
+    }
+
+    private function killPlayers($match, $teamId, $count)
+    {
+        $outPlayers = $match->matchPlayers()
+            ->where('team_id', $teamId)
+            ->where('is_playing', true)
+            ->where('is_substitute', false)
+            ->orderBy('updated_at', 'asc')
+            ->take($count)
+            ->get();
+
+        foreach ($outPlayers as $player) {
+            $player->update([
+                'is_playing' => false
                 //, 'is_substitute' => false
             ]);
         }
