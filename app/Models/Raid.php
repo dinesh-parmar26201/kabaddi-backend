@@ -48,4 +48,24 @@ class Raid extends Model
     {
         return $this->hasOne(EventLog::class);
     }
+
+    // Accessor for emptyRaids attribute
+    public function getEmptyRaidsAttribute()
+    {
+        // Get all raids for the current match, ordered by latest created date
+        $raids = self::where('match_id', $this->match_id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $count = 0;
+        foreach ($raids as $raid) {
+            if ($raid->outcome === 'empty') {
+                $count++;
+            } else {
+                break;
+            }
+        }
+        return $count;
+    }
+
 }
