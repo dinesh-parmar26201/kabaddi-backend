@@ -54,6 +54,7 @@ class Raid extends Model
     {
         // Get all raids for the current match, ordered by latest created date
         $raids = self::where('match_id', $this->match_id)
+            ->where('raid_team_id', $this->raid_team_id)
             ->orderByDesc('created_at')
             ->get();
 

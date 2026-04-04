@@ -10,6 +10,7 @@ use App\Http\Requests\Match\TossRequest;
 use App\Http\Requests\Match\UpdateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
+use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
 use App\Services\Match\MatchServiceInterface;
 use Illuminate\Http\Request;
 
@@ -114,6 +115,16 @@ class MatchController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Players swapped successfully'
+        ]);
+    }
+
+    public function updateCard(UpdateMatchPlayerCardRequest $request, int $matchId)
+    {
+        $match = $this->matchService->updateCard($request, $matchId);
+
+        return response()->json([
+            'message' => 'Card updated successfully',
+            'data' => MatchResponseDTO::fromModel($match, ['teams'])
         ]);
     }
 }

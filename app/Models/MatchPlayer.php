@@ -13,12 +13,18 @@ class MatchPlayer extends Model
         'is_captain',
         'is_playing',
         'is_substitute',
+        'green_card',
+        'yellow_card',
+        'red_card',
     ];
 
     protected $casts = [
         'is_captain' => 'boolean',
         'is_playing' => 'boolean',
         'is_substitute' => 'boolean',
+        'green_card' => 'boolean',
+        'yellow_card' => 'boolean',
+        'red_card' => 'boolean',
     ];
 
     public function user()

@@ -5,6 +5,7 @@ namespace App\Services\Match;
 use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
+use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
 
 interface MatchServiceInterface
 {
@@ -17,4 +18,5 @@ interface MatchServiceInterface
     public function updateTeamPlayers(UpdateMatchTeamPlayersRequest $request, int $matchId);
     public function updateTeamCourt(UpdateMatchTeamCourtRequest $request, int $matchId);
     public function swapPlayers(int $matchId, array $data): void;
+    public function updateCard(UpdateMatchPlayerCardRequest $request, int $matchId);
 }

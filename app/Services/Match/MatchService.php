@@ -6,6 +6,7 @@ use App\Enums\MatchStatus;
 use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
+use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
 use App\Models\GameMatch;
 use App\Models\MatchPlayer;
 use App\Models\MatchTeam;
@@ -232,5 +233,29 @@ class MatchService implements MatchServiceInterface
                 'updated_at' => now()
             ]);
         });
+    }
+
+    public function updateCard(UpdateMatchPlayerCardRequest $request, int $matchId)
+    {
+        $matchPlayer = MatchPlayer::where('match_id', $matchId)
+            ->where('team_id', $request->input('team_id'))
+            ->where('user_id', $request->input('player_id'))
+            ->firstOrFail();
+
+        if ($request->has('green_card')) {
+            $matchPlayer->green_card = $request->input('green_card');
+        }
+
+        if ($request->has('red_card')) {
+            $matchPlayer->red_card = $request->input('red_card');
+        }
+
+        if ($request->has('yellow_card')) {
+            $matchPlayer->yellow_card = $request->input('yellow_card');
+        }
+
+        $matchPlayer->save();
+
+        return GameMatch::with(['teams'])->findOrFail($matchId);
     }
 }
