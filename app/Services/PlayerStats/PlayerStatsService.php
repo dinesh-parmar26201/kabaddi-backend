@@ -65,6 +65,11 @@ class PlayerStatsService implements PlayerStatsServiceInterface
         // Unsuccessful tackles
         $unsuccessfulTackles = RaidDefender::where('user_id', $playerId)->count();
 
+        // Cards
+        $greenCards = MatchPlayer::where('user_id', $playerId)->where('green_card', true)->count();
+        $yellowCards = MatchPlayer::where('user_id', $playerId)->where('yellow_card', true)->count();
+        $redCards = MatchPlayer::where('user_id', $playerId)->where('red_card', true)->count();
+
         return [
             'total_matches' => $totalMatches,
             'total_points' => $raidPoints + $tacklePoints + $bonusPoints + $superTackles,
@@ -87,6 +92,12 @@ class PlayerStatsService implements PlayerStatsServiceInterface
                 'successful_tackle' => $successfulTackles,
                 'unsuccessful_tackle' => $unsuccessfulTackles,
                 'total_lifetime_tackles' => $successfulTackles + $unsuccessfulTackles
+            ],
+            
+            'card_stats' => [
+                'green_cards' => $greenCards,
+                'yellow_cards' => $yellowCards,
+                'red_cards' => $redCards,
             ]
         ];
     }

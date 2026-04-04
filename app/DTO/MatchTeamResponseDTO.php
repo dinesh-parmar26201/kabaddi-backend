@@ -13,12 +13,14 @@ class MatchTeamResponseDTO
         unset($teamData['player_count']);
         unset($teamData['captain']);
 
+        $matchPlayers = $team->matchPlayers->where('match_id', $match->id);
+
         return array_merge($teamData, [
             'court_side' => $teamMatchData ? $teamMatchData->court_side : null,
-            'players' => MatchPlayerResponseDTO::collection(
-                $team->matchPlayers
-                    ->where('match_id', $match->id)
-            ),
+            'players' => MatchPlayerResponseDTO::collection($matchPlayers),
+            'green_cards' => $matchPlayers->where('green_card', true)->count(),
+            'yellow_cards' => $matchPlayers->where('yellow_card', true)->count(),
+            'red_cards' => $matchPlayers->where('red_card', true)->count(),
         ]);
     }
 

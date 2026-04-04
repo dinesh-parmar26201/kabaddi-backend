@@ -14,7 +14,10 @@ class MatchPlayerResponseDTO
             'is_playing' => $mp->is_playing,
             'is_substitute' => $mp->is_substitute,
             'is_captain' => $mp->is_captain,
-            'match_player_id' => $mp->id ?? null
+            'match_player_id' => $mp->id ?? null,
+            'green_card' => $mp->green_card,
+            'yellow_card' => $mp->yellow_card,
+            'red_card' => $mp->red_card,
         ]);
     }
 

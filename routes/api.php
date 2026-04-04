@@ -54,6 +54,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('{id}/team-players', [MatchController::class, 'updateTeamPlayers']);
         Route::post('{id}/team-court', [MatchController::class, 'updateTeamCourt']);
         Route::post('{id}/swap-player', [MatchController::class, 'swap']);
+        Route::post('{id}/card', [MatchController::class, 'updateCard']);
     });
 
     Route::prefix('matches/{match}')->group(function () {
