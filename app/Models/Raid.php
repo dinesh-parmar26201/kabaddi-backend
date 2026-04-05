@@ -17,7 +17,8 @@ class Raid extends Model
         'super_raid',
         'super_tackle',
         'raider_lineout',
-        'all_out'
+        'all_out',
+        'state_snapshot'
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class Raid extends Model
         'raider_lineout' => 'boolean',
         'all_out' => 'boolean',
         'raid_number' => 'integer',
+        'state_snapshot' => 'array',
     ];
 
     public function defenders()
