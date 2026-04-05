@@ -71,4 +71,16 @@ class GameMatch extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function getEmptyRaidsCount(int $teamId): int
+    {
+        // Find the latest raid performed by this team
+        $latestRaid = $this->raids()
+            ->where('raid_team_id', $teamId)
+            ->latest()
+            ->first();
+
+        // The Raid model has an 'empty_raids' accessor that counts consecutive empty raids
+        return $latestRaid ? $latestRaid->empty_raids : 0;
+    }
 }
