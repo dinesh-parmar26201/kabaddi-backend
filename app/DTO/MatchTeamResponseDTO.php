@@ -21,6 +21,7 @@ class MatchTeamResponseDTO
             'green_cards' => $matchPlayers->where('green_card', true)->count(),
             'yellow_cards' => $matchPlayers->where('yellow_card', true)->count(),
             'red_cards' => $matchPlayers->where('red_card', true)->count(),
+            'empty_raids' => $match->getEmptyRaidsCount($team->id),
         ]);
     }
 
