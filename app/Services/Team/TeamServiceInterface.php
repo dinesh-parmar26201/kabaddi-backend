@@ -7,9 +7,11 @@ use App\Http\Requests\Team\StoreTeamRequest;
 use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 interface TeamServiceInterface
 {
-    public function list(?string $search = null): iterable;
+    public function list(?string $search = null): LengthAwarePaginator;
 
     public function create(StoreTeamRequest $request): Team;
 
@@ -19,7 +21,7 @@ interface TeamServiceInterface
 
     public function addPlayer(int $teamId, AddPlayerToTeamRequest $request): void;
 
-    public function getMatches(int $teamId): iterable;
+    public function getMatches(int $teamId): LengthAwarePaginator;
 
     public function removePlayer(int $teamId, int $playerId): void;
 }

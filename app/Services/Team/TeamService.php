@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class TeamService implements TeamServiceInterface
 {
-    public function list(?string $search = null): iterable
+    public function list(?string $search = null): LengthAwarePaginator
     {
         $query = Team::where(function ($q) {
             $q->where('created_by', Auth::id())
@@ -24,7 +26,7 @@ class TeamService implements TeamServiceInterface
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        return $query->latest()->get();
+        return $query->latest()->paginate(15);
     }
 
     public function create($request): Team
@@ -127,10 +129,10 @@ class TeamService implements TeamServiceInterface
         }
     }
 
-    public function getMatches(int $teamId): iterable
+    public function getMatches(int $teamId): LengthAwarePaginator
     {
         $team = Team::findOrFail($teamId);
-        return $team->matches()->get();
+        return $team->matches()->latest()->paginate(15);
     }
 
     public function removePlayer(int $teamId, int $playerId): void

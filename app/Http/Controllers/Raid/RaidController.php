@@ -19,9 +19,13 @@ class RaidController extends Controller
     {
         $raids = $this->raidService->getRaidsByMatch($match);
 
+        $raids->getCollection()->transform(function ($raid) {
+            return RaidResponseDTO::fromModel($raid);
+        });
+
         return response()->json([
             'success' => true,
-            'data' => $raids->map(fn($raid) => RaidResponseDTO::fromModel($raid))
+            'data' => $raids
         ]);
     }
 

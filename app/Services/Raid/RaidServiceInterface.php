@@ -4,9 +4,11 @@ namespace App\Services\Raid;
 
 use App\Models\Raid;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 interface RaidServiceInterface
 {
-    public function getRaidsByMatch(int $matchId);
+    public function getRaidsByMatch(int $matchId): LengthAwarePaginator;
 
     public function store(int $matchId, array $data): Raid;
 

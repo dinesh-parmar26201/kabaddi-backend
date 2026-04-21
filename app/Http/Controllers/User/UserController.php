@@ -34,12 +34,14 @@ class UserController extends Controller
     public function search(UserSearchRequest $request)
     {
         $results = $this->userService->search($request);
-        $response = UserResponseDTO::collection($results);
+        
+        $results->getCollection()->transform(function ($user) {
+            return UserResponseDTO::make($user);
+        });
 
-        if (empty($response)) {
-            return response()->json(["message" => "No users found", "data" => []]);
-        }
-
-        return response()->json(["message" => "Users retrieved successfully", "data" => $response]);
+        return response()->json([
+            "message" => "Users retrieved successfully", 
+            "data" => $results
+        ]);
     }
 }

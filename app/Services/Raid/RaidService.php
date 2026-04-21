@@ -10,14 +10,16 @@ use App\Services\Scoreboard\ScoreboardServiceInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class RaidService implements RaidServiceInterface
 {
-    public function getRaidsByMatch(int $matchId)
+    public function getRaidsByMatch(int $matchId): LengthAwarePaginator
     {
         return Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
             ->where('match_id', $matchId)
             ->orderBy('raid_number', 'asc')
-            ->get();
+            ->paginate(15);
     }
 
     public function store(int $matchId, array $data): Raid
