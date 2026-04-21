@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Tournament\StoreTournamentRequest;
 use App\Http\Requests\Tournament\UpdateTournamentRequest;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class TournamentService implements TournamentServiceInterface
 {
     public function store(StoreTournamentRequest $request)
@@ -88,7 +90,7 @@ class TournamentService implements TournamentServiceInterface
         return Tournament::findOrFail($id);
     }
 
-    public function list(?string $search = null): iterable
+    public function list(?string $search = null): LengthAwarePaginator
     {
         $query = Tournament::query();
 
@@ -96,7 +98,7 @@ class TournamentService implements TournamentServiceInterface
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        return $query->latest()->get();
+        return $query->latest()->paginate(15);
     }
 
     public function addTeams(int $tournamentId, array $teamIds)

@@ -7,11 +7,13 @@ use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
 use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 interface MatchServiceInterface
 {
     public function create(CreateMatchRequest $request);
     public function update(int $matchId, array $data);
-    public function list(array $filters = []);
+    public function list(array $filters = []): LengthAwarePaginator;
     public function detail(int $matchId);
     public function delete(int $matchId);
     public function toss(int $matchId, array $data);

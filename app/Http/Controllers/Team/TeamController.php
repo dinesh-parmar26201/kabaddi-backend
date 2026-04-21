@@ -25,9 +25,13 @@ class TeamController extends Controller
     {
         $teams = $this->teamService->list($request->search);
 
+        $teams->getCollection()->transform(function ($team) {
+            return TeamResponseDTO::fromModel($team);
+        });
+
         return response()->json([
             'message' => 'Teams retrieved successfully',
-            'data' => TeamResponseDTO::collection($teams)
+            'data' => $teams
         ]);
     }
 
@@ -102,9 +106,13 @@ class TeamController extends Controller
 
         $matches = $this->teamService->getMatches($id);
 
+        $matches->getCollection()->transform(function ($match) {
+            return MatchResponseDTO::fromModel($match, ['teams', 'teamBreakdowns']);
+        });
+
         return response()->json([
             'message' => 'Team matches retrieved successfully',
-            'data' => MatchResponseDTO::fromModels($matches, ['teams', 'teamBreakdowns'])
+            'data' => $matches
         ]);
     }
 

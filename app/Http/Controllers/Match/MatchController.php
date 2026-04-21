@@ -46,13 +46,16 @@ class MatchController extends Controller
 
     public function index(Request $request)
     {
+        $matches = $this->matchService->list($request->all());
+
+        $matches->getCollection()->transform(function ($match) {
+            return MatchResponseDTO::fromModel($match, ['teams', 'teamBreakdowns']);
+        });
+
         return response()->json(
             [
                 'message' => 'Match list fetched successfully',
-                'data' => MatchResponseDTO::fromModels(
-                    $this->matchService->list(),
-                    ['teams', 'teamBreakdowns']
-                )
+                'data' => $matches
             ]
         );
     }

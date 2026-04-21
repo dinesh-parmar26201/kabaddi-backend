@@ -52,9 +52,13 @@ class TournamentController extends Controller
 
         $tournaments = $this->service->list($request->search);
 
+        $tournaments->getCollection()->transform(function ($tournament) {
+            return TournamentResponseDTO::fromModel($tournament);
+        });
+
         return response()->json([
             'message' => 'Tournaments retrieved successfully',
-            'data' => TournamentResponseDTO::collection($tournaments)
+            'data' => $tournaments
         ]);
     }
 
@@ -115,11 +119,15 @@ class TournamentController extends Controller
         $this->authorize('view', Tournament::class);
 
         $tournament = Tournament::findOrFail($id);
-        $matches = $tournament->matches()->get();
+        $matches = $tournament->matches()->latest()->paginate(15);
+
+        $matches->getCollection()->transform(function ($match) {
+            return MatchResponseDTO::fromModel($match, ['teams', 'raids', 'teamBreakdowns']);
+        });
 
         return response()->json([
             'message' => 'Tournament matches retrieved successfully',
-            'data' => MatchResponseDTO::fromModels($matches, ['teams', 'raids', 'teamBreakdowns'])
+            'data' => $matches
         ]);
     }
 

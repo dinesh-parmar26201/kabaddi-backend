@@ -14,6 +14,8 @@ use App\Models\TeamPlayer;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class MatchService implements MatchServiceInterface
 {
     public function create(CreateMatchRequest $request)
@@ -87,7 +89,7 @@ class MatchService implements MatchServiceInterface
         return $match->load('teams');
     }
 
-    public function list(array $filters = [])
+    public function list(array $filters = []): LengthAwarePaginator
     {
         $query = GameMatch::query();
 
@@ -99,7 +101,7 @@ class MatchService implements MatchServiceInterface
             $query->where('status', $filters['status']);
         }
 
-        return $query->latest()->get();
+        return $query->latest()->paginate(15);
     }
 
     public function detail(int $matchId)

@@ -6,6 +6,8 @@ use Exception;
 use App\Models\User;
 use App\Http\Requests\User\UserUpdateRequest;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 class UserService implements UserServiceInterface
 {
     public function update(UserUpdateRequest $request): User
@@ -45,7 +47,7 @@ class UserService implements UserServiceInterface
         return $request->user();
     }
 
-    public function search($request)
+    public function search($request): LengthAwarePaginator
     {
         $searchTerm = $request->getSearch();
 
@@ -55,6 +57,6 @@ class UserService implements UserServiceInterface
             ->orWhere('state', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('country', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('jersey_no', 'LIKE', '%' . $searchTerm . '%')
-            ->get();
+            ->paginate(15);
     }
 }
