@@ -18,6 +18,7 @@ class UserResponseDTO
             'state' => $user->state,
             'city' => $user->city,
             'role' => $user->role,
+            'positions' => $user->positions ?? [],
             'country' => $user->country,
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
         ];

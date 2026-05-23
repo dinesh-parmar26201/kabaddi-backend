@@ -23,6 +23,7 @@ class UserService implements UserServiceInterface
                 'state'     => $request->state,
                 'city'      => $request->city,
                 'role'      => $request->role,
+                'positions' => $request->positions,
                 'country'   => $request->country,
                 'fcm_token' => $request->fcm_token,
             ];
