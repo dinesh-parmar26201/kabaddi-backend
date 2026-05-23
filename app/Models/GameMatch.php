@@ -27,6 +27,7 @@ class GameMatch extends Model
         'toss_decision',
         'status',
         'created_by',
+        'winner_team_id',
     ];
 
     protected $casts = [

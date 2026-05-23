@@ -5,6 +5,7 @@ use App\Models\Raid;
 use App\Models\RaidDefender;
 use App\Models\RaidTackler;
 use App\Models\MatchPlayer;
+use App\Enums\MatchStatus;
 
 class PlayerStatsService implements PlayerStatsServiceInterface
 {
@@ -13,6 +14,14 @@ class PlayerStatsService implements PlayerStatsServiceInterface
         $playerId = auth()->id();
         // Total matches played
         $totalMatches = MatchPlayer::where('user_id', $playerId)->count();
+
+        // Total lifetime win matches
+        $totalWinMatches = MatchPlayer::where('user_id', $playerId)
+            ->whereHas('match', function ($q) {
+                $q->where('status', MatchStatus::COMPLETED->value)
+                  ->whereColumn('matches.winner_team_id', 'match_players.team_id');
+            })
+            ->count();
 
         // Raids done by player
         $raids = Raid::where('raider_id', $playerId);
@@ -72,6 +81,8 @@ class PlayerStatsService implements PlayerStatsServiceInterface
 
         return [
             'total_matches' => $totalMatches,
+            'total_win_matches' => $totalWinMatches,
+            
             'total_points' => $raidPoints + $tacklePoints + $bonusPoints + $superTackles,
             'total_raid_points' => $raidPoints + $bonusPoints,
             'total_tackle_points' => $tacklePoints + $superTackles,
