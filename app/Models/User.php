@@ -23,6 +23,7 @@ class User extends Authenticatable
         'jersey_no',
         'dob',
         'role',
+        'positions',
         'phone',
         'state',
         'city',
@@ -38,7 +39,9 @@ class User extends Authenticatable
      */
     protected function casts(): array
     {
-        return [];
+        return [
+            'positions' => 'array',
+        ];
     }
 
     public function teams()
