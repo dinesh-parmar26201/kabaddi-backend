@@ -31,4 +31,9 @@ class MatchPlayer extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function match()
+    {
+        return $this->belongsTo(GameMatch::class, 'match_id');
+    }
 }

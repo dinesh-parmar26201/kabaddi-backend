@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Services\Scoreboard\ScoreboardServiceInterface;
 
 class MatchService implements MatchServiceInterface
 {
@@ -81,9 +82,33 @@ class MatchService implements MatchServiceInterface
         if ($status) {
             $status = MatchStatus::from($status);
         } else {
-            $status = $match->status;
+            $status = $match->status instanceof MatchStatus ? $match->status : MatchStatus::from($match->status);
         }
         $data['status'] = $status;
+
+        if ($status->value === MatchStatus::COMPLETED->value) {
+            $scoreService = app(ScoreboardServiceInterface::class);
+            $scoreboard = $scoreService->getMatchScoreboard($matchId);
+            $teamBreakdowns = $scoreboard->teamBreakdowns ?? [];
+
+            if (count($teamBreakdowns) >= 2) {
+                $teamA = $teamBreakdowns[0];
+                $teamB = $teamBreakdowns[1];
+
+                if ($teamA->totalPoints > $teamB->totalPoints) {
+                    $data['winner_team_id'] = $teamA->teamId;
+                } elseif ($teamB->totalPoints > $teamA->totalPoints) {
+                    $data['winner_team_id'] = $teamB->teamId;
+                } else {
+                    $data['winner_team_id'] = null; // Draw
+                }
+            } else {
+                $data['winner_team_id'] = null;
+            }
+        } else {
+            $data['winner_team_id'] = null;
+        }
+
         $match->update($data);
 
         return $match->load('teams');
