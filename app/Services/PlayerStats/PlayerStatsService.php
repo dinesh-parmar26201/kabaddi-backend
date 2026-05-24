@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services\PlayerStats;
+
 use App\Models\Raid;
 use App\Models\RaidDefender;
 use App\Models\RaidTackler;
@@ -19,7 +20,7 @@ class PlayerStatsService implements PlayerStatsServiceInterface
         $totalWinMatches = MatchPlayer::where('user_id', $playerId)
             ->whereHas('match', function ($q) {
                 $q->where('status', MatchStatus::COMPLETED->value)
-                  ->whereColumn('matches.winner_team_id', 'match_players.team_id');
+                    ->whereColumn('matches.winner_team_id', 'match_players.team_id');
             })
             ->count();
 
@@ -30,7 +31,7 @@ class PlayerStatsService implements PlayerStatsServiceInterface
 
         // Raid Points (touch points)
         $raidPoints = RaidDefender::whereHas('raid', function ($q) use ($playerId) {
-            $q->where('raider_id', $playerId);  
+            $q->where('raider_id', $playerId);
         })->count();
 
         // Bonus points
@@ -82,7 +83,7 @@ class PlayerStatsService implements PlayerStatsServiceInterface
         return [
             'total_matches' => $totalMatches,
             'total_win_matches' => $totalWinMatches,
-            
+
             'total_points' => $raidPoints + $tacklePoints + $bonusPoints + $superTackles,
             'total_raid_points' => $raidPoints + $bonusPoints,
             'total_tackle_points' => $tacklePoints + $superTackles,
@@ -104,12 +105,29 @@ class PlayerStatsService implements PlayerStatsServiceInterface
                 'unsuccessful_tackle' => $unsuccessfulTackles,
                 'total_lifetime_tackles' => $successfulTackles + $unsuccessfulTackles
             ],
-            
+
             'card_stats' => [
                 'green_cards' => $greenCards,
                 'yellow_cards' => $yellowCards,
                 'red_cards' => $redCards,
-            ]
+            ],
+
+            'recent_form' => $this->getRecentForm($playerId),
         ];
+    }
+
+    protected function getRecentForm(int $playerId): array
+    {
+        $recentMatches = MatchPlayer::where('user_id', $playerId)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return $recentMatches->map(function ($match) {
+            return [
+                'match_id' => $match->match_id,
+                'outcome' => $match->match->winner_team_id == $match->team_id ? 'win' : 'loss',
+            ];
+        })->toArray();
     }
 }
