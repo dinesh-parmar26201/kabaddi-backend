@@ -8,12 +8,17 @@ class Tournament extends Model
 {
     protected $fillable = [
         'name',
+        'gender',
+        'type',
+        'age_group',
         'banner',
         'organizer_name',
         'organizer_phone',
         'organizer_email',
         'ground',
         'city',
+        'country',
+        'state',
         'start_date',
         'end_date',
         'category',
