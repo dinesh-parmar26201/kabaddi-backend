@@ -15,6 +15,7 @@ class MatchResponseDTO
             'id' => $match->id,
             'title' => $match->title,
             'tournament_id' => $match->tournament_id,
+            'tournament_match_no' => $match->tournament_match_no,
             'start_date' => $match->start_date,
             'start_time' => $match->start_time,
             'end_time' => $match->end_time,
