@@ -19,6 +19,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('profile', [UserController::class, 'profile']);
         Route::post('search', [UserController::class, 'search']);
         Route::get('stats', [PlayerStatsController::class, 'show']);
+        Route::get('teams', [UserController::class, 'teams']);
     });
 
     Route::prefix('team')->group(function () {
