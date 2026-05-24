@@ -30,7 +30,7 @@ class MatchService implements MatchServiceInterface
             'team_a_id' => $request->input('teams_a_id'),
             'team_b_id' => $request->input('teams_b_id'),
             'tournament_id' => $request->input('tournament_id'),
-            'tournament_match_no' => $request->input('tournament_match_no'),
+            'tournament_match_no' => $this->getTournamentMatchNo($request->input('tournament_id'), $request->input('tournament_match_no')),
             'start_date' => $request->input('start_date'),
             'start_time' => $request->input('start_time'),
             'end_time' => $request->input('end_time'),
@@ -86,6 +86,10 @@ class MatchService implements MatchServiceInterface
             $status = $match->status instanceof MatchStatus ? $match->status : MatchStatus::from($match->status);
         }
         $data['status'] = $status;
+
+        if (isset($data['tournament_match_no'])) {
+            $data['tournament_match_no'] = $this->getTournamentMatchNo($match->tournament_id, $data['tournament_match_no']);
+        }
 
         if ($status->value === MatchStatus::COMPLETED->value) {
             $scoreService = app(ScoreboardServiceInterface::class);
@@ -285,5 +289,14 @@ class MatchService implements MatchServiceInterface
         $matchPlayer->save();
 
         return GameMatch::with(['teams'])->findOrFail($matchId);
+    }
+
+    protected function getTournamentMatchNo(int $tournamentId, int|null $matchNo): int
+    {
+        if (isset($matchNo) && !empty($matchNo)) {
+            return $matchNo;
+        }
+        return GameMatch::where('tournament_id', $tournamentId)
+            ->max('tournament_match_no') + 1;
     }
 }
