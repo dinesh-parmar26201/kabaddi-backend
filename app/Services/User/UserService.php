@@ -60,4 +60,13 @@ class UserService implements UserServiceInterface
             ->orWhere('jersey_no', 'LIKE', '%' . $searchTerm . '%')
             ->paginate(15);
     }
+
+    public function show(int $id): User
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception('User not found');
+        }
+        return $user;
+    }
 }

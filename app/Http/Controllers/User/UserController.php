@@ -56,4 +56,12 @@ class UserController extends Controller
             "data" => $results
         ]);
     }
+
+    public function show(int $id)
+    {
+        $result = $this->userService->show($id);
+        $response = UserResponseDTO::make($result, ['teams']);
+
+        return response()->json(["message" => "Player profile retrieved successfully", "data" => $response]);
+    }
 }
