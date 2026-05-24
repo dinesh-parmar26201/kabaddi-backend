@@ -28,6 +28,7 @@ class GameMatch extends Model
         'status',
         'created_by',
         'winner_team_id',
+        'stage',
     ];
 
     protected $casts = [

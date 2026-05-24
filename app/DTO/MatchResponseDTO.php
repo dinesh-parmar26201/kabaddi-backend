@@ -27,6 +27,7 @@ class MatchResponseDTO
             'status' => MatchStatus::from($match->status)->label(),
             'toss_winner_team_id' => $match->toss_winner_team_id,
             'toss_decision' => $match->toss_decision,
+            'stage' => $match->stage,
             'current raid' => $match->raids()->latest()->first() ? RaidResponseDTO::fromModel($match->raids()->latest()->first()) : null,
             'created_by' => $match->created_by ? UserResponseDTO::fromModel($match->creator) : null,
         ];

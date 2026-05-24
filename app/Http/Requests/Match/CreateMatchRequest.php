@@ -31,6 +31,7 @@ class CreateMatchRequest extends FormRequest
             'status' => ['nullable', new Enum(MatchStatus::class)],
             'toss_winner_team_id' => 'nullable|exists:teams,id',
             'toss_decision' => 'nullable|string',
+            'stage' => 'nullable|string|in:League Match,Knockout Match,Quarterfinal,Semi Final,Final',
         ];
     }
 
