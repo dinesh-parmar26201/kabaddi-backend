@@ -41,6 +41,7 @@ class MatchService implements MatchServiceInterface
             'status' => $status,
             'toss_winner_team_id' => $request->input('toss_winner_team_id'),
             'toss_decision' => $request->input('toss_decision'),
+            'stage' => $request->input('stage'),
             'created_by' => $request->user()->id,
         ]);
 
