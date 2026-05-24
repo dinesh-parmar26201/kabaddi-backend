@@ -108,7 +108,10 @@ class TournamentService implements TournamentServiceInterface
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        return $query->latest()->paginate(15);
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+
+        return $query->latest()->paginate($perPage);
     }
 
     public function addTeams(int $tournamentId, array $teamIds)

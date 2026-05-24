@@ -16,10 +16,12 @@ class RaidService implements RaidServiceInterface
 {
     public function getRaidsByMatch(int $matchId): LengthAwarePaginator
     {
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
         return Raid::with(['defenders', 'tacklers', 'defenderLineouts'])
             ->where('match_id', $matchId)
             ->orderBy('raid_number', 'asc')
-            ->paginate(15);
+            ->paginate($perPage);
     }
 
     public function store(int $matchId, array $data): Raid
@@ -495,5 +497,4 @@ class RaidService implements RaidServiceInterface
             ]);
         }
     }
-
 }

@@ -119,7 +119,9 @@ class TournamentController extends Controller
         $this->authorize('view', Tournament::class);
 
         $tournament = Tournament::findOrFail($id);
-        $matches = $tournament->matches()->latest()->paginate(15);
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+        $matches = $tournament->matches()->latest()->paginate($perPage);
 
         $matches->getCollection()->transform(function ($match) {
             return MatchResponseDTO::fromModel($match, ['teams', 'raids', 'teamBreakdowns']);
