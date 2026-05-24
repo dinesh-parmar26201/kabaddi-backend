@@ -11,6 +11,8 @@ class TeamBreakdownDTO
         public int $tacklePoints,
         public int $allOutPoints,
         public int $extraPoints,
+        public int $superRaids,
+        public int $superTackles,
         public int $raiderLineoutPoints,
         public int $defenderLineoutPoints,
         public int $technicalPoints,

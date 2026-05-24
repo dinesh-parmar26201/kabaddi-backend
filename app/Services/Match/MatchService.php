@@ -7,6 +7,7 @@ use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
 use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
+use App\Models\EventLog;
 use App\Models\GameMatch;
 use App\Models\MatchPlayer;
 use App\Models\MatchTeam;
@@ -298,5 +299,55 @@ class MatchService implements MatchServiceInterface
         }
         return GameMatch::where('tournament_id', $tournamentId)
             ->max('tournament_match_no') + 1;
+    }
+
+    public function summary(int $matchId)
+    {
+        $scoreboardService = app(ScoreboardServiceInterface::class);
+        $scoreboard = $scoreboardService->getMatchScoreboard($matchId);
+
+        return $scoreboard->teamBreakdowns;
+    }
+
+    public function scorecard(int $matchId)
+    {
+        $scoreboardService = app(ScoreboardServiceInterface::class);
+        $scoreboard = $scoreboardService->getMatchScoreboard($matchId);
+        return $scoreboard->playerStats;
+    }
+
+    public function playByPlay(int $matchId)
+    {
+        $logs = EventLog::with('raid')
+            ->where('match_id', $matchId)
+            ->orderByDesc('id')
+            ->get();
+
+        return $logs;
+    }
+
+    public function bestPerformance(int $matchId) {
+        $allPlayersData = $this->scorecard($matchId);
+
+        $players = collect($allPlayersData);
+
+        $bestRaider = $players->sortByDesc('raidPoints')->first();
+        $bestDefender = $players->sortByDesc('tacklePoints')->first();
+
+        return [
+            'bestRaider' => $bestRaider,
+            'bestDefender' => $bestDefender,
+        ];
+    }
+
+    public function playerStats(int $matchId, int $playerId)
+    {
+        $scoreboardService = app(ScoreboardServiceInterface::class);
+        $match = GameMatch::with(['raids.defenders', 'raids.tacklers'])->findOrFail($matchId);
+        $matchPlayer = MatchPlayer::where('match_id', $matchId)
+            ->where('user_id', $playerId)
+            ->firstOrFail();
+        
+        return $scoreboardService->getMatchPlayerStats($match, $matchPlayer);
     }
 }

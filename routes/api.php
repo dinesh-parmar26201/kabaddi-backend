@@ -16,6 +16,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::prefix('players')->group(function () {
         Route::post('update', [UserController::class, 'update']);
+        Route::get('show/{id}', [UserController::class, 'show']);
         Route::get('profile', [UserController::class, 'profile']);
         Route::post('search', [UserController::class, 'search']);
         Route::get('stats', [PlayerStatsController::class, 'show']);
@@ -56,6 +57,11 @@ Route::middleware('auth:api')->group(function () {
         Route::post('{id}/team-court', [MatchController::class, 'updateTeamCourt']);
         Route::post('{id}/swap-player', [MatchController::class, 'swap']);
         Route::post('{id}/card', [MatchController::class, 'updateCard']);
+        Route::get('{id}/summary', [MatchController::class, 'summary']);
+        Route::get('{id}/scorecard', [MatchController::class, 'scorecard']);
+        Route::get('{id}/play-by-play', [MatchController::class, 'playByPlay']);
+        Route::get('{id}/best-performance', [MatchController::class, 'bestPerformance']);
+        Route::get('{id}/player-stats/{player_id}', [MatchController::class, 'playerStats']);
     });
 
     Route::prefix('matches/{match}')->group(function () {

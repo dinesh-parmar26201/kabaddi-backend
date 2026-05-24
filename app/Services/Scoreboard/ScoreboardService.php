@@ -8,6 +8,7 @@ use App\DTO\TeamBreakdownDTO;
 use App\DTO\PlayerStatsDTO;
 use App\Enums\EventType;
 use App\Models\GameMatch;
+use App\Models\MatchPlayer;
 
 class ScoreboardService implements ScoreboardServiceInterface
 {
@@ -37,10 +38,11 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'superRaids'   => 0,
+                'superTackles' => 0,
                 'raiderLineoutPoints' => 0,
                 'defenderLineoutPoints' => 0,
                 'technicalPoints' => 0,
-                'superTackles'  => 0,
             ],
             $teamBId => [
                 'id'           => $teamBId,
@@ -49,10 +51,11 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'tacklePoints' => 0,
                 'allOutPoints' => 0,
                 'extraPoints'  => 0,
+                'superRaids'   => 0,
+                'superTackles' => 0,
                 'raiderLineoutPoints' => 0,
                 'defenderLineoutPoints' => 0,
                 'technicalPoints' => 0,
-                'superTackles'  => 0,
             ],
         ];
 
@@ -137,6 +140,7 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                 // Super raid counter
                 if ($raid->super_raid && isset($playerStatsMap[$raid->raider_id])) {
+                    $teamsMap[$raidingTeamId]['superRaids'] += 1;
                     $playerStatsMap[$raid->raider_id]['superRaids'] += 1;
                 }
 
@@ -267,6 +271,8 @@ class ScoreboardService implements ScoreboardServiceInterface
                 tacklePoints: $team['tacklePoints'],
                 allOutPoints: $team['allOutPoints'],
                 extraPoints: $team['extraPoints'],
+                superRaids: $team['superRaids'],
+                superTackles: $team['superTackles'],
                 raiderLineoutPoints: $team['raiderLineoutPoints'],
                 defenderLineoutPoints: $team['defenderLineoutPoints'],
                 technicalPoints: $team['technicalPoints'],
@@ -307,4 +313,140 @@ class ScoreboardService implements ScoreboardServiceInterface
             playerStats: $playerStats
         );
     }
+
+    public function getMatchPlayerStats(GameMatch $match, MatchPlayer $matchPlayer) {
+        $playerId = $matchPlayer->user_id;
+
+        // Ensure raids and their relations are loaded
+        $match->loadMissing([
+            'raids.defenders',
+            'raids.tacklers',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | POINTS
+        |--------------------------------------------------------------------------
+        */
+        $touchPoints  = 0; // raid touch points (defender outs by this raider)
+        $bonusPoints  = 0;
+        $tacklePoints = 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | RAID STATS
+        |--------------------------------------------------------------------------
+        */
+        $totalRaids        = 0;
+        $successfulRaids   = 0;
+        $unsuccessfulRaids = 0;
+        $emptyRaids        = 0;
+        $superRaids        = 0;
+        $raidSequence      = []; // ordered list of raid outcomes for the dot visualization
+
+        /*
+        |--------------------------------------------------------------------------
+        | TACKLE STATS
+        |--------------------------------------------------------------------------
+        */
+        $totalTackles        = 0;
+        $successfulTackles   = 0;
+        $unsuccessfulTackles = 0;
+        $superTackles        = 0;
+
+        foreach ($match->raids as $raid) {
+
+            /*
+            |--------------------------------------------------------------
+            | When this player is the RAIDER
+            |--------------------------------------------------------------
+            */
+            if ($raid->raider_id === $playerId) {
+                $totalRaids++;
+
+                if ($raid->outcome === 'successful') {
+                    $successfulRaids++;
+                    $raidSequence[] = 'successful';
+
+                    $defenderCount = $raid->defenders->count();
+                    $touchPoints  += $defenderCount;
+
+                } elseif ($raid->outcome === 'unsuccessful') {
+                    $unsuccessfulRaids++;
+                    $raidSequence[] = 'unsuccessful';
+
+                } else {
+                    // empty
+                    $emptyRaids++;
+                    $raidSequence[] = 'empty';
+                }
+
+                if ($raid->bonus_point) {
+                    $bonusPoints++;
+                }
+
+                if ($raid->super_raid) {
+                    $superRaids++;
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------
+            | When this player is the TACKLER
+            |--------------------------------------------------------------
+            */
+            $tackler = $raid->tacklers; // hasOne → model or null
+            if ($tackler && $tackler->user_id === $playerId) {
+                $successfulTackles++;
+                $tacklePoints++;
+
+                if ($raid->super_tackle) {
+                    $superTackles++;
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------
+            | When this player is a DEFENDER and the raid is successful
+            | (i.e. the raider touched them – counts as unsuccessful tackle)
+            |--------------------------------------------------------------
+            */
+            if ($raid->outcome === 'successful' && $raid->raider_id !== $playerId) {
+                $wasDefender = $raid->defenders->contains('user_id', $playerId);
+                if ($wasDefender) {
+                    $unsuccessfulTackles++;
+                }
+            }
+        }
+
+        $totalTackles = $successfulTackles + $unsuccessfulTackles;
+        $totalPoints  = $touchPoints + $bonusPoints + $tacklePoints + $superTackles;
+
+        return [
+            'playerId'   => $playerId,
+            'playerName' => $matchPlayer->user->fullname ?? null,
+            'teamId'     => $matchPlayer->team_id,
+
+            // Points breakdown
+            'totalPoints'  => $totalPoints,
+            'touchPoints'  => $touchPoints,
+            'bonusPoints'  => $bonusPoints,
+            'tacklePoints' => $tacklePoints,
+
+            // Raid stats
+            'totalRaids'        => $totalRaids,
+            'successfulRaids'   => $successfulRaids,
+            'unsuccessfulRaids' => $unsuccessfulRaids,
+            'emptyRaids'        => $emptyRaids,
+            'superRaids'        => $superRaids,
+            'raidSequence'      => $raidSequence,
+
+            // Tackle stats
+            'totalTackles'        => $totalTackles,
+            'successfulTackles'   => $successfulTackles,
+            'unsuccessfulTackles' => $unsuccessfulTackles,
+            'superTackles'        => $superTackles,
+        ];
+    }
+    
 }

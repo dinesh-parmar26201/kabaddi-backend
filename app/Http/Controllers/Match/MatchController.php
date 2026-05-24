@@ -130,4 +130,54 @@ class MatchController extends Controller
             'data' => MatchResponseDTO::fromModel($match, ['teams'])
         ]);
     }
+
+    public function summary(int $id)
+    {
+        $data = $this->matchService->summary($id);
+
+        return response()->json([
+            'message' => 'Match summary fetched successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function scorecard(int $id)
+    {
+        $data = $this->matchService->scorecard($id);
+
+        return response()->json([
+            'message' => 'Match scorecard fetched successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function playByPlay(int $id)
+    {
+        $data = $this->matchService->playByPlay($id);
+
+        return response()->json([
+            'message' => 'Match play by play fetched successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function bestPerformance(int $id)
+    {
+        $data = $this->matchService->bestPerformance($id);
+
+        return response()->json([
+            'message' => 'Match best performance fetched successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function playerStats(int $matchId, int $playerId)
+    {
+        $data = $this->matchService->playerStats($matchId, $playerId);
+
+        return response()->json([
+            'message' => 'Match player stats fetched successfully',
+            'data' => $data
+        ]);
+    }
 }

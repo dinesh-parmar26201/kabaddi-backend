@@ -16,4 +16,6 @@ interface UserServiceInterface
     public function profile(Request $request): User;
 
     public function search(UserSearchRequest $request): LengthAwarePaginator;
+
+    public function show(int $id): User;
 }
