@@ -12,6 +12,9 @@ class TournamentResponseDTO
         return [
             'id' => $tournament->id,
             'name' => $tournament->name,
+            'gender' => $tournament->gender,
+            'type' => $tournament->type,
+            'age_group' => $tournament->age_group,
             'banner' => $tournament->banner ? asset('storage/' . $tournament->banner) : null,
             'ground' => $tournament->ground,
             'organizer' => [
@@ -19,6 +22,8 @@ class TournamentResponseDTO
                 'phone' => $tournament->organizer_phone,
                 'email' => $tournament->organizer_email,
             ],
+            'country' => $tournament->country,
+            'state' => $tournament->state,
             'city' => $tournament->city,
             'start_date' => $tournament->start_date,
             'end_date' => $tournament->end_date,
