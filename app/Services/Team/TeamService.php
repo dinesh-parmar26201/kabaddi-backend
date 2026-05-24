@@ -17,16 +17,23 @@ class TeamService implements TeamServiceInterface
     {
         $query = Team::where(function ($q) {
             $q->where('created_by', Auth::id())
-            ->orWhereHas('allPlayers', function ($q2) {
-                $q2->where('users.id', Auth::id());
-            });
+                ->orWhereHas('allPlayers', function ($q2) {
+                    $q2->where('users.id', Auth::id());
+                });
         });
 
         if ($search) {
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        return $query->latest()->paginate(15);
+        if ($search) {
+            $query->orWhere('id', $search);
+        }
+
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+
+        return $query->latest()->paginate($perPage);
     }
 
     public function create($request): Team
@@ -132,7 +139,11 @@ class TeamService implements TeamServiceInterface
     public function getMatches(int $teamId): LengthAwarePaginator
     {
         $team = Team::findOrFail($teamId);
-        return $team->matches()->latest()->paginate(15);
+
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+        
+        return $team->matches()->latest()->paginate($perPage);
     }
 
     public function removePlayer(int $teamId, int $playerId): void

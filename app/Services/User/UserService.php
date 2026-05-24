@@ -51,6 +51,8 @@ class UserService implements UserServiceInterface
     public function search($request): LengthAwarePaginator
     {
         $searchTerm = $request->getSearch();
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
 
         return User::where('fullname', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('phone', 'LIKE', '%' . $searchTerm . '%')
@@ -58,7 +60,7 @@ class UserService implements UserServiceInterface
             ->orWhere('state', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('country', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('jersey_no', 'LIKE', '%' . $searchTerm . '%')
-            ->paginate(15);
+            ->paginate($perPage);
     }
 
     public function show(int $id): User

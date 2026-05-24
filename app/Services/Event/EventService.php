@@ -25,7 +25,10 @@ class EventService implements EventServiceInterface
             $query->where('type', $filters['type']);
         }
 
-        $paginator = $query->orderByDesc('id')->paginate(15);
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+
+        $paginator = $query->orderByDesc('id')->paginate($perPage);
         $paginator->getCollection()->transform(function ($eventLog) {
             $eventLog->raid_dto = $eventLog->raid_dto;
             return $eventLog;
@@ -68,7 +71,7 @@ class EventService implements EventServiceInterface
         $scoreboard = $scoreService->getMatchScoreboard($data['match_id']);
         $event->score_after_raid = $scoreboard->teamBreakdowns ?? [];
         $event->save();
-        
+
         return $event->refresh();
     }
 }

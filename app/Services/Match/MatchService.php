@@ -132,7 +132,9 @@ class MatchService implements MatchServiceInterface
             $query->where('status', $filters['status']);
         }
 
-        return $query->latest()->paginate(15);
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+        return $query->latest()->paginate($perPage);
     }
 
     public function detail(int $matchId)
@@ -326,7 +328,8 @@ class MatchService implements MatchServiceInterface
         return $logs;
     }
 
-    public function bestPerformance(int $matchId) {
+    public function bestPerformance(int $matchId)
+    {
         $allPlayersData = $this->scorecard($matchId);
 
         $players = collect($allPlayersData);
@@ -347,7 +350,7 @@ class MatchService implements MatchServiceInterface
         $matchPlayer = MatchPlayer::where('match_id', $matchId)
             ->where('user_id', $playerId)
             ->firstOrFail();
-        
+
         return $scoreboardService->getMatchPlayerStats($match, $matchPlayer);
     }
 }
