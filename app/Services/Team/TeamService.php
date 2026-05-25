@@ -15,12 +15,16 @@ class TeamService implements TeamServiceInterface
 {
     public function list(?string $search = null): LengthAwarePaginator
     {
-        $query = Team::where(function ($q) {
-            $q->where('created_by', Auth::id())
-                ->orWhereHas('allPlayers', function ($q2) {
-                    $q2->where('users.id', Auth::id());
-                });
-        });
+        if (request()->get('all', false)) {
+            $query = Team::query();
+        } else {
+            $query = Team::where(function ($q) {
+                $q->where('created_by', Auth::id())
+                    ->orWhereHas('allPlayers', function ($q2) {
+                        $q2->where('users.id', Auth::id());
+                    });
+            });
+        }
 
         if ($search) {
             $query->where('name', 'like', '%' . $search . '%');
@@ -142,7 +146,7 @@ class TeamService implements TeamServiceInterface
 
         $perPage = (int) request()->get('per_page', 15);
         $perPage = $perPage > 0 ? $perPage : 15;
-        
+
         return $team->matches()->latest()->paginate($perPage);
     }
 

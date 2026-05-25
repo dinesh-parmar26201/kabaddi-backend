@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Services\Scoreboard\ScoreboardServiceInterface;
+use Illuminate\Support\Facades\Auth;
 
 class MatchService implements MatchServiceInterface
 {
@@ -122,7 +123,11 @@ class MatchService implements MatchServiceInterface
 
     public function list(array $filters = []): LengthAwarePaginator
     {
-        $query = GameMatch::query();
+        if(request()->get('all', false)){
+            $query = GameMatch::query();
+        }else{
+            $query = GameMatch::where('created_by', Auth::id());
+        }
 
         if (!empty($filters['tournament_id'])) {
             $query->where('tournament_id', $filters['tournament_id']);
