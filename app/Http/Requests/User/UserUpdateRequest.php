@@ -22,7 +22,7 @@ class UserUpdateRequest extends FormRequest
             'country'   => 'required|string|max:255',
             'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'fcm_token' => 'nullable|string|max:255',
-            'role'      => 'nullable|string|in:Raider,Defender,All-Rounder',
+            'role'      => 'required|string|in:Raider,Defender,All-Rounder',
             'positions' => [
                 'nullable',
                 'array',
