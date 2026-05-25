@@ -9,6 +9,7 @@ use App\Http\Requests\Tournament\StoreTournamentRequest;
 use App\Http\Requests\Tournament\UpdateTournamentRequest;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 
 class TournamentService implements TournamentServiceInterface
 {
@@ -102,7 +103,11 @@ class TournamentService implements TournamentServiceInterface
 
     public function list(?string $search = null): LengthAwarePaginator
     {
-        $query = Tournament::query();
+        if (request()->get('all', false)) {
+            $query = Tournament::query();
+        } else {
+            $query = Tournament::where('created_by', Auth::id());
+        }
 
         if ($search) {
             $query->where('name', 'like', '%' . $search . '%');
