@@ -22,9 +22,9 @@ class UserUpdateRequest extends FormRequest
             'country'   => 'required|string|max:255',
             'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'fcm_token' => 'nullable|string|max:255',
-            'role'      => 'required|string|in:Raider,Defender,All-Rounder',
+            'role'      => 'nullable|string|in:Raider,Defender,All-Rounder',
             'positions' => [
-                'required',
+                'nullable',
                 'array',
                 'min:1',
                 function ($attribute, $value, $fail) {
@@ -47,8 +47,13 @@ class UserUpdateRequest extends FormRequest
                         }
                     } else { // All-Rounder
                         $allowedPositions = [
-                            'Left Raider', 'Right Raider', 'Both-Side Raider',
-                            'Left Corner', 'Right Corner', 'Left Cover', 'Right Cover'
+                            'Left Raider',
+                            'Right Raider',
+                            'Both-Side Raider',
+                            'Left Corner',
+                            'Right Corner',
+                            'Left Cover',
+                            'Right Cover'
                         ];
                     }
 
