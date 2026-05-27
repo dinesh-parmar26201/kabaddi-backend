@@ -311,9 +311,16 @@ class MatchService implements MatchServiceInterface
     public function summary(int $matchId)
     {
         $scoreboardService = app(ScoreboardServiceInterface::class);
-        $scoreboard = $scoreboardService->getMatchScoreboard($matchId);
 
-        return $scoreboard->teamBreakdowns;
+        $firstHalf = $scoreboardService->getMatchScoreboard($matchId, 1);
+        $secondHalf = $scoreboardService->getMatchScoreboard($matchId, 2);
+        $allTime = $scoreboardService->getMatchScoreboard($matchId);
+
+        return [
+            'first_half' => $firstHalf->teamBreakdowns,
+            'second_half' => $secondHalf->teamBreakdowns,
+            'all_time' => $allTime->teamBreakdowns,
+        ];
     }
 
     public function scorecard(int $matchId)

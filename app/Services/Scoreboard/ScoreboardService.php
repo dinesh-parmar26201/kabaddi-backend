@@ -12,7 +12,7 @@ use App\Models\MatchPlayer;
 
 class ScoreboardService implements ScoreboardServiceInterface
 {
-    public function getMatchScoreboard(int $matchId): ScoreboardResponseDTO
+    public function getMatchScoreboard(int $matchId, ?int $half = null): ScoreboardResponseDTO
     {
         $match = GameMatch::with([
             'teams.team',
@@ -85,7 +85,11 @@ class ScoreboardService implements ScoreboardServiceInterface
         | PROCESS RAIDS
         |--------------------------------------------------------------------------
         */
-        foreach ($match->raids as $raid) {
+        $raids = $half
+            ? $match->raids->where('half', $half)
+            : $match->raids;
+
+        foreach ($raids as $raid) {
 
             $raidingTeamId   = $raid->raid_team_id;
             $defendingTeamId = ($raidingTeamId == $teamAId) ? $teamBId : $teamAId;
@@ -239,7 +243,11 @@ class ScoreboardService implements ScoreboardServiceInterface
         | - they can be awarded to either team and may not be associated with a specific player
         |--------------------------------------------------------------------------
         */
-        foreach ($match->events as $event) {
+        $events = $half
+            ? $match->events->where('half', $half)
+            : $match->events;
+
+        foreach ($events as $event) {
             if ($event->type) {
                 if ($event->type->value == EventType::TECHNICAL_POINT->value) {
                     $teamsMap[$event->team_id]['technicalPoints'] += 1;
