@@ -348,10 +348,12 @@ class MatchService implements MatchServiceInterface
 
         $bestRaider = $players->sortByDesc('raidPoints')->first();
         $bestDefender = $players->sortByDesc('tacklePoints')->first();
+        $mvp = $players->sortByDesc('totalPoints')->first();
 
         return [
             'bestRaider' => $bestRaider,
             'bestDefender' => $bestDefender,
+            'mvp' => $mvp,
         ];
     }
 
