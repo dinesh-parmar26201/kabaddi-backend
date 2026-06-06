@@ -70,6 +70,7 @@ class ScoreboardService implements ScoreboardServiceInterface
             $playerStatsMap[$player->user_id] = [
                 'playerId'     => $player->user_id,
                 'playerName'   => $player->user->fullname,
+                'photo'        => $player->user->photo ? asset('storage/' . $player->user->photo) : null,
                 'teamId'       => $player->team_id,
                 'raidPoints'   => 0,
                 'tacklePoints' => 0,
@@ -311,6 +312,7 @@ class ScoreboardService implements ScoreboardServiceInterface
             $playerStats[] = new PlayerStatsDTO(
                 playerId: $player['playerId'],
                 playerName: $player['playerName'],
+                photo: $player['photo'],
                 teamId: $player['teamId'],
                 raidPoints: $player['raidPoints'],
                 tacklePoints: $player['tacklePoints'],
@@ -440,6 +442,7 @@ class ScoreboardService implements ScoreboardServiceInterface
         return [
             'playerId'   => $playerId,
             'playerName' => $matchPlayer->user->fullname ?? null,
+            'photo'      => $matchPlayer->user->photo ? asset('storage/' . $matchPlayer->user->photo) : null,
             'teamId'     => $matchPlayer->team_id,
 
             // Points breakdown

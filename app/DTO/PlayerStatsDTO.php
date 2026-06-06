@@ -6,6 +6,7 @@ class PlayerStatsDTO
     public function __construct(
         public int $playerId,
         public string $playerName,
+        public string|null $photo,
         public int $teamId,
         public int $raidPoints,
         public int $tacklePoints,
