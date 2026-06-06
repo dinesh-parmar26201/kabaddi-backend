@@ -13,6 +13,7 @@ class PlayerStatsDTO
         public int $superTackles,
         public int $bonusPoints,
         // public int $defenderLineoutPoints,
+        public int $totalRaids,
         public int $totalPoints
     ) {}
 }

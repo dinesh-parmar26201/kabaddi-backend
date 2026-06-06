@@ -346,7 +346,18 @@ class MatchService implements MatchServiceInterface
 
         $players = collect($allPlayersData);
 
-        $bestRaider = $players->sortByDesc('raidPoints')->first();
+        // Best Raider: sort by raidPoints DESC, then by Raid Strike Rate DESC as tiebreaker
+        // Raid Strike Rate = (raidPoints + bonusPoints) / totalRaids
+        $bestRaider = $players->sortBy(function ($player) {
+            $raidPoints = $player->raidPoints ?? 0;
+            $bonusPoints = $player->bonusPoints ?? 0;
+            $totalRaids = $player->totalRaids ?? 0;
+            $strikeRate = $totalRaids > 0 ? ($raidPoints + $bonusPoints) / $totalRaids : 0;
+
+            // Negative for descending sort: primary by raidPoints, secondary by strikeRate
+            return [-$raidPoints, -$strikeRate];
+        })->first();
+
         $bestDefender = $players->sortByDesc('tacklePoints')->first();
         $mvp = $players->sortByDesc('totalPoints')->first();
 
