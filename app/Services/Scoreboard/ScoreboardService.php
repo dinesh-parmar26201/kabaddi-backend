@@ -77,6 +77,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'superRaids'   => 0,
                 'superTackles' => 0,
                 'defenderLineoutPoints' => 0,
+                'totalRaids'   => 0,
             ];
         }
 
@@ -90,6 +91,11 @@ class ScoreboardService implements ScoreboardServiceInterface
             : $match->raids;
 
         foreach ($raids as $raid) {
+
+            // Count total raids per raider
+            if (isset($playerStatsMap[$raid->raider_id])) {
+                $playerStatsMap[$raid->raider_id]['totalRaids']++;
+            }
 
             $raidingTeamId   = $raid->raid_team_id;
             $defendingTeamId = ($raidingTeamId == $teamAId) ? $teamBId : $teamAId;
@@ -312,6 +318,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                 superTackles: $player['superTackles'],
                 bonusPoints: $player['bonusPoints'],
                 // defenderLineoutPoints: $player['defenderLineoutPoints'],
+                totalRaids: $player['totalRaids'],
                 totalPoints: $total
             );
         }
