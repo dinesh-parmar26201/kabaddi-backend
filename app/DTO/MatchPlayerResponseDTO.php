@@ -3,14 +3,18 @@ namespace App\DTO;
 
 use App\Models\MatchPlayer;
 use App\DTO\User\UserResponseDTO;
+use App\Services\Match\MatchServiceInterface;
 
 class MatchPlayerResponseDTO
 {
     public static function fromModel(MatchPlayer $mp): array
     {
         $userData = UserResponseDTO::fromModel($mp->user);
+        $matchService = app(MatchServiceInterface::class);
+        $playerStats = $matchService->playerStats($mp->match_id, $mp->user_id);
 
         return array_merge($userData, [
+            ...$playerStats,
             'is_playing' => $mp->is_playing,
             'is_substitute' => $mp->is_substitute,
             'is_captain' => $mp->is_captain,
