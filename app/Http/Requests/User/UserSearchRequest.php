@@ -14,11 +14,11 @@ class UserSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search' => 'required|string|max:255',
+            'search' => 'nullable|string|max:255',
         ];
     }
 
-    public function getSearch(): string
+    public function getSearch(): string|null
     {
         return $this->input('search');
     }
