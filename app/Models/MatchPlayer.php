@@ -22,9 +22,9 @@ class MatchPlayer extends Model
         'is_captain' => 'boolean',
         'is_playing' => 'boolean',
         'is_substitute' => 'boolean',
-        'green_card' => 'boolean',
-        'yellow_card' => 'boolean',
-        'red_card' => 'boolean',
+        'green_card' => 'integer',
+        'yellow_card' => 'integer',
+        'red_card' => 'integer',
     ];
 
     public function user()
