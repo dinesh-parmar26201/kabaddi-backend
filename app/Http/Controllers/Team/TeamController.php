@@ -12,6 +12,8 @@ use App\Http\Requests\Team\StoreTeamRequest;
 use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Requests\Team\AddPlayerToTeamRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Configuration\Exceptions;
+
 
 class TeamController extends Controller
 {
@@ -101,6 +103,8 @@ class TeamController extends Controller
 
     public function matches(int $id)
     {
+        try {
+            //code...
         $team = Team::findOrFail($id);
         $this->authorize('view', $team);
 
@@ -114,6 +118,13 @@ class TeamController extends Controller
             'message' => 'Team matches retrieved successfully',
             'data' => $matches
         ]);
+        } catch (Exceptions $e) {
+            //throw $th;
+            return response()->json([
+            'message' => 'error',
+            'data' => $e->getMessage()
+        ]);
+        }
     }
 
     public function removePlayer(int $id, int $player_id)
