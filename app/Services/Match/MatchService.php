@@ -123,9 +123,9 @@ class MatchService implements MatchServiceInterface
 
     public function list(array $filters = []): LengthAwarePaginator
     {
-        if(request()->get('all', false)){
+        if (request()->get('all', false)) {
             $query = GameMatch::query();
-        }else{
+        } else {
             $query = GameMatch::where('created_by', Auth::id());
         }
 
@@ -299,8 +299,11 @@ class MatchService implements MatchServiceInterface
         return GameMatch::with(['teams'])->findOrFail($matchId);
     }
 
-    protected function getTournamentMatchNo(int $tournamentId, int|null $matchNo): int
+    protected function getTournamentMatchNo(int|null $tournamentId, int|null $matchNo): int|null
     {
+        if ($tournamentId == null) {
+            return null;
+        }
         if (isset($matchNo) && !empty($matchNo)) {
             return $matchNo;
         }
