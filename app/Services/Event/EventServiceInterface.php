@@ -10,4 +10,5 @@ interface EventServiceInterface
     public function list(array $filters): LengthAwarePaginator;
     public function store(array $data): EventLog;
     public function update(EventLog $event, array $data): EventLog;
+    public function delete(EventLog $event): void;
 }

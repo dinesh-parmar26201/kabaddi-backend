@@ -26,6 +26,7 @@ class UserService implements UserServiceInterface
                 'positions' => $request->positions,
                 'country'   => $request->country,
                 'fcm_token' => $request->fcm_token,
+                'bio'       => $request->bio,
             ];
 
             if ($request->hasFile('photo')) {

@@ -30,6 +30,7 @@ class User extends Authenticatable
         'country',
         'photo',
         'fcm_token',
+        'bio',
     ];
 
     /**

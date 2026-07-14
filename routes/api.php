@@ -32,6 +32,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('{id}/add-player', [TeamController::class, 'addPlayer']);
         Route::post('{id}/remove-player/{player_id}', [TeamController::class, 'removePlayer']);
         Route::get('{id}/matches', [TeamController::class, 'matches']);
+        Route::get('{id}/stats', [TeamController::class, 'stats']);
     });
 
     Route::prefix('tournament')->group(function () {
@@ -80,6 +81,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/', [EventController::class, 'index']);
         Route::post('/', [EventController::class, 'store']);
         Route::post('{event}', [EventController::class, 'update']);
+        Route::delete('{event}', [EventController::class, 'destroy']);
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

@@ -4,6 +4,7 @@ namespace App\Services\Event;
 
 use App\Models\EventLog;
 use App\Services\Event\EventServiceInterface;
+use App\Services\Raid\RaidServiceInterface;
 use App\Services\Scoreboard\ScoreboardServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -73,5 +74,14 @@ class EventService implements EventServiceInterface
         $event->save();
 
         return $event->refresh();
+    }
+
+    public function delete(EventLog $event): void
+    {
+        if ($event->raid_id) {
+            $raidService = app(RaidServiceInterface::class);
+            $raidService->undoLastRaid($event->match_id);
+        }
+        $event->delete();
     }
 }

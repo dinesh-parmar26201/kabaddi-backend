@@ -33,6 +33,11 @@ class TournamentResponseDTO
             'teams' => $tournament->teams->map(function ($team) {
                 return TeamResponseDTO::fromModel($team);
             })->toArray(),
+            'matches_count' => $tournament->matches()->count(),
+            'teams_count' => $tournament->teams()->count(),
+            'players_count' => $tournament->teams->sum(function ($team) {
+                return $team->players()->count();
+            }),
         ];
     }
 

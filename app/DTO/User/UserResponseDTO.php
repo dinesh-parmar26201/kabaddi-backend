@@ -21,6 +21,7 @@ class UserResponseDTO
             'positions' => $user->positions ?? [],
             'country' => $user->country,
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
+            'bio' => $user->bio,
         ];
 
         if (in_array('teams', $includes)) {
