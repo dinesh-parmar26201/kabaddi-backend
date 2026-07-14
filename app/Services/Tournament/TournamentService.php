@@ -109,6 +109,14 @@ class TournamentService implements TournamentServiceInterface
             $query = Tournament::where('created_by', Auth::id());
         }
 
+        if (request()->get('status') == 'live') {
+            $query->whereDate('start_date', '<=', now())->whereDate('end_date', '>=', now());
+        } else if (request()->get('status') == 'upcoming') {
+            $query->whereDate('start_date', '>', now());
+        } else if (request()->get('status') == 'completed') {
+            $query->whereDate('end_date', '<', now());
+        }
+
         if ($search) {
             $query->where('name', 'like', '%' . $search . '%');
         }

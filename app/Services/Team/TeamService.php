@@ -27,7 +27,8 @@ class TeamService implements TeamServiceInterface
         }
 
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('city', 'like', '%' . $search . '%');
         }
 
         if ($search) {
@@ -154,5 +155,34 @@ class TeamService implements TeamServiceInterface
     {
         $team = Team::findOrFail($teamId);
         $team->allPlayers()->detach($playerId);
+    }
+
+    public function stats(int $id)
+    {
+        $team = Team::findOrFail($id);
+        $stats = $team->loadCount([
+            'allPlayers as total_raiders' => function ($query) {
+                $query->where('role', 'raider');
+            },
+            'allPlayers as total_defenders' => function ($query) {
+                $query->where('role', 'defender');
+            },
+            'allPlayers as total_all_rounders' => function ($query) {
+                $query->where('role', 'all-rounder');
+            },
+            'matches as total_matches_played' => function ($query) {
+                $query->where('status', 'completed');
+            },
+            'matches as total_matches_won' => function ($query) use ($id) {
+                $query->where('status', 'completed')
+                    ->where('winner_team_id', $id);
+            },
+        ]);
+
+        $played = $stats->total_matches_played ?? 0;
+        $won = $stats->total_matches_won ?? 0;
+        $stats->win_percentage = $played > 0 ? round(($won / $played) * 100, 2) : 0;
+
+        return $stats;
     }
 }

@@ -128,15 +128,25 @@ class MatchService implements MatchServiceInterface
         } else {
             $query = GameMatch::where('created_by', Auth::id());
         }
+        
+        if (request()->get('status') == 'live') {
+            $query->whereIn('status', MatchStatus::isLive());
+        } else if (request()->get('status') == MatchStatus::UPCOMING->value) {
+            $query->where('status', MatchStatus::UPCOMING->value);
+        } else if (request()->get('status') == MatchStatus::COMPLETED->value) {
+            $query->where('status', MatchStatus::COMPLETED->value);
+        }
 
         if (!empty($filters['tournament_id'])) {
             $query->where('tournament_id', $filters['tournament_id']);
         }
 
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+        if (request()->get('search') && request()->get('search') != null) {
+            $query->where('title', 'like', '%' . request()->get('search') . '%')
+            ->orWhere('venue', 'like', '%' . request()->get('search') . '%')
+            ;
         }
-
+        
         $perPage = (int) request()->get('per_page', 15);
         $perPage = $perPage > 0 ? $perPage : 15;
         return $query->latest()->paginate($perPage);

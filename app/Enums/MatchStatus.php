@@ -28,13 +28,13 @@ enum MatchStatus: string
         };
     }
 
-    public function isLive(): bool
+    public static function isLive(): array
     {
-        return in_array($this, [
-            self::FIRST_HALF,
-            self::SECOND_HALF,
-            self::TIMEOUT,
-            self::ONGOING,
-        ]);
+        return [
+            self::FIRST_HALF->value,
+            self::SECOND_HALF->value,
+            self::TIMEOUT->value,
+            self::ONGOING->value,
+        ];
     }
 }

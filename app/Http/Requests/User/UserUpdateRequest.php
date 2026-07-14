@@ -64,6 +64,7 @@ class UserUpdateRequest extends FormRequest
                     }
                 }
             ],
+            'bio'       => 'nullable|string|max:255',
         ];
     }
 }

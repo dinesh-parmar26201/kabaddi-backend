@@ -46,5 +46,15 @@ class EventController extends Controller
             'data' => $event
         ]);
     }
+
+    public function destroy(EventLog $event)
+    {
+        $this->eventService->delete($event);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event deleted successfully'
+        ]);
+    }
 }
 

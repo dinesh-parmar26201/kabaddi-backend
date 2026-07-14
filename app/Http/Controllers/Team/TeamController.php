@@ -145,4 +145,17 @@ class TeamController extends Controller
             'data' => TeamResponseDTO::fromModel($team)
         ]);
     }
+
+    public function stats(int $id)
+    {
+        $team = Team::findOrFail($id);
+        $this->authorize('view', $team);
+
+        $stats = $this->teamService->stats($id);
+
+        return response()->json([
+            'message' => 'Team stats retrieved successfully',
+            'data' => $stats
+        ]);
+    }
 }

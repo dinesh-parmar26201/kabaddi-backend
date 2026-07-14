@@ -24,4 +24,6 @@ interface TeamServiceInterface
     public function getMatches(int $teamId): LengthAwarePaginator;
 
     public function removePlayer(int $teamId, int $playerId): void;
+
+    public function stats(int $id);
 }
