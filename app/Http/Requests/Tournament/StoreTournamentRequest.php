@@ -25,6 +25,7 @@ class StoreTournamentRequest extends FormRequest
             'end_date' => 'nullable|string',
             'category' => 'nullable|string',
             'status' => 'nullable|string',
+            'qr_code'   => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ];
     }
 }

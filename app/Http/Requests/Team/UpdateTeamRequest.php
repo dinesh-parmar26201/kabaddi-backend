@@ -16,6 +16,7 @@ class UpdateTeamRequest extends FormRequest
             'players' => 'nullable|array',
             'players.*.id' => 'exists:users,id|distinct',
             'players.*.is_captain' => 'nullable|boolean',
+            'qr_code'   => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ];
     }
 

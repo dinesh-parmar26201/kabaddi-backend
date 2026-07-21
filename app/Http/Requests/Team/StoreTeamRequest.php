@@ -13,6 +13,7 @@ class StoreTeamRequest extends FormRequest
             'name'       => 'required|string',
             'logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'city'       => 'nullable|string',
+            'qr_code'   => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ];
     }
 }

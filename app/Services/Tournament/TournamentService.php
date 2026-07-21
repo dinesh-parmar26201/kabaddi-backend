@@ -23,6 +23,13 @@ class TournamentService implements TournamentServiceInterface
                 }
             }
 
+            if (isset($request->qr_code) && $request->hasFile('qr_code')) {
+                $qr_code_path = $request->file('qr_code')->store('images/TournamentBanners/QR', 'public');
+                if (!$qr_code_path) {
+                    throw new Exception('QR code upload failed');
+                }
+            }
+
             $tournament = Tournament::create([
                 'name' => $request->input('name'),
                 'gender' => $request->input('gender'),
@@ -41,6 +48,7 @@ class TournamentService implements TournamentServiceInterface
                 'category' => $request->input('category'),
                 'status' => $request->input('status'),
                 'created_by' => $request->user()->id,
+                'qr_code' => $qr_code_path ?? null,
             ]);
             return $tournament;
         } catch (Exception $e) {
@@ -67,6 +75,22 @@ class TournamentService implements TournamentServiceInterface
 
                 $tournament->banner = $path;
             }
+
+            if (isset($request->qr_code) && $request->hasFile('qr_code')) {
+                // Upload new qr_code
+                $qr_code_path = $request->file('qr_code')->store('images/TournamentBanners/QR', 'public');
+
+                if (!$qr_code_path) {
+                    throw new Exception('QR code upload failed');
+                }
+                // Delete old qr_code if exists
+                if ($tournament->qr_code) {
+                    Storage::disk('public')->delete($tournament->qr_code);
+                }
+
+                $tournament->qr_code = $qr_code_path;
+            }
+
             $tournament->update([
                 'name' => $request->input('name'),
                 'gender' => $request->input('gender'),
@@ -84,6 +108,7 @@ class TournamentService implements TournamentServiceInterface
                 'end_date' => $request->input('end_date'),
                 'category' => $request->input('category'),
                 'status' => $request->input('status'),
+                'qr_code' => $tournament->qr_code,
             ]);
             return $tournament;
         } catch (Exception $e) {

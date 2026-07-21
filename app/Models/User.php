@@ -31,6 +31,7 @@ class User extends Authenticatable
         'photo',
         'fcm_token',
         'bio',
+        'qr_code'
     ];
 
     /**

@@ -37,6 +37,14 @@ class UserService implements UserServiceInterface
                 $data['photo'] = $path;
             }
 
+            if ($request->hasFile('qr_code')) {
+                $path = $request->file('qr_code')->store('images/Players/QR', 'public');
+                if (!$path) {
+                    throw new Exception('QR code upload failed');
+                }
+                $data['qr_code'] = $path;
+            }
+
             $user->update($data);
             return $user;
         } catch (Exception $e) {
