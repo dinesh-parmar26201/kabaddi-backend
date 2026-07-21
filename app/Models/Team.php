@@ -11,6 +11,7 @@ class Team extends Model
         'city',
         'logo',
         'created_by',
+        'qr_code'
     ];
 
     public function creator()

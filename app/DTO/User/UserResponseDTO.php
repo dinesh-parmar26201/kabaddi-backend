@@ -22,6 +22,7 @@ class UserResponseDTO
             'country' => $user->country,
             'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
             'bio' => $user->bio,
+            'qr_code' => $user->qr_code ? asset('storage/' . $user->qr_code) : null,
         ];
 
         if (in_array('teams', $includes)) {

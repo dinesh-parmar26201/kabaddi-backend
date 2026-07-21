@@ -38,6 +38,7 @@ class TournamentResponseDTO
             'players_count' => $tournament->teams->sum(function ($team) {
                 return $team->players()->count();
             }),
+            'qr_code' => $tournament->qr_code ? asset('storage/' . $tournament->qr_code) : null,
         ];
     }
 

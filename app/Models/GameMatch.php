@@ -40,6 +40,21 @@ class GameMatch extends Model
         return $this->hasMany(MatchTeam::class, 'match_id')->with('team');
     }
 
+    public function tournament()
+    {
+        return $this->belongsTo(Tournament::class, 'tournament_id');
+    }
+
+    public function teamA()
+    {
+        return $this->belongsTo(Team::class, 'team_a_id');
+    }
+
+    public function teamB()
+    {
+        return $this->belongsTo(Team::class, 'team_b_id');
+    }
+
     public function players()
     {
         return $this->hasMany(MatchPlayer::class, 'match_id');

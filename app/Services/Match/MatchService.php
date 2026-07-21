@@ -141,10 +141,23 @@ class MatchService implements MatchServiceInterface
             $query->where('tournament_id', $filters['tournament_id']);
         }
 
-        if (request()->get('search') && request()->get('search') != null) {
-            $query->where('title', 'like', '%' . request()->get('search') . '%')
-            ->orWhere('venue', 'like', '%' . request()->get('search') . '%')
-            ;
+        if ($search = request()->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('venue', 'like', '%' . $search . '%')
+                    ->orWhereHas('tournament', function ($tq) use ($search) {
+                        $tq->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('teamA', function ($tq) use ($search) {
+                        $tq->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('teamB', function ($tq) use ($search) {
+                        $tq->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('teams.team', function ($tq) use ($search) {
+                        $tq->where('name', 'like', '%' . $search . '%');
+                    });
+            });
         }
         
         $perPage = (int) request()->get('per_page', 15);

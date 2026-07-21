@@ -51,11 +51,19 @@ class TeamService implements TeamServiceInterface
                 }
             }
 
+            if (isset($request->qr_code) && $request->hasFile('qr_code')) {
+                $qr_code_path = $request->file('qr_code')->store('images/TeamLogos/QR', 'public');
+                if (!$qr_code_path) {
+                    throw new Exception('QR code upload failed');
+                }
+            }
+
             $team = Team::create([
                 'name' => $request->input('name'),
                 'city' => $request->input('city'),
                 'logo' => $path ?? null,
                 'created_by' => Auth::id(),
+                'qr_code' => $qr_code_path ?? null,
             ]);
             return $team;
         } catch (Exception $e) {
@@ -84,11 +92,28 @@ class TeamService implements TeamServiceInterface
                 $team->logo = $path;
             }
 
+            // Handle qr_code update
+            if (isset($request->qr_code) && $request->hasFile('qr_code')) {
+                // Upload new qr_code
+                $qr_code_path = $request->file('qr_code')->store('images/TeamLogos/QR', 'public');
+
+                if (!$qr_code_path) {
+                    throw new Exception('QR code upload failed');
+                }
+                // Delete old qr_code if exists
+                if ($team->qr_code) {
+                    Storage::disk('public')->delete($team->qr_code);
+                }
+
+                $team->qr_code = $qr_code_path;
+            }
+
             // Update team data
             $team->update([
                 'name' => $request->has('name') ? $request->input('name') : $team->name,
                 'city' => $request->has('city') ? $request->input('city') : $team->city,
                 'logo' => $team->logo, // logo is already handled above
+                'qr_code' => $team->qr_code, // qr_code is already handled above
             ]);
 
             // Handle players update
