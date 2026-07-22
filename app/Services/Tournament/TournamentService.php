@@ -149,7 +149,18 @@ class TournamentService implements TournamentServiceInterface
         $perPage = (int) request()->get('per_page', 15);
         $perPage = $perPage > 0 ? $perPage : 15;
 
-        return $query->latest()->paginate($perPage);
+        $data = $query->latest()->paginate($perPage);
+
+        $statusFilter = request()->get('status');
+        if (in_array($statusFilter, ['live', 'upcoming', 'completed'])) {
+            foreach ($data as $tournament) {
+                if ($tournament->status !== $statusFilter) {
+                    $tournament->update(['status' => $statusFilter]);
+                }
+            }
+        }
+
+        return $data;
     }
 
     public function addTeams(int $tournamentId, array $teamIds)
