@@ -24,7 +24,8 @@ class Tournament extends Model
         'category',
         'status',
         'created_by',
-        'qr_code'
+        'qr_code',
+        'ground_type'
     ];
 
     public function teams()

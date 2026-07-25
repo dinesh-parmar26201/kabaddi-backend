@@ -15,8 +15,8 @@ interface TournamentServiceInterface
     public function find(int $id);
     public function list(?string $search = null): LengthAwarePaginator;
     public function addTeams(int $tournamentId, array $teamIds);
-    public function getTeams(int $tournamentId);
-    public function getMatches(int $tournamentId);
+    public function getTeams(int $tournamentId, int $perPage): LengthAwarePaginator;
+    public function getMatches(int $tournamentId, int $perPage): LengthAwarePaginator;
     public function removeTeam(int $tournamentId, int $teamId): void;
 }
 

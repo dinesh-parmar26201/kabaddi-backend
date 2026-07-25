@@ -15,7 +15,7 @@ enum MatchStatus: string
     {
         return array_column(self::cases(), 'value');
     }
-
+  
     public function label(): string
     {
         return match ($this) {

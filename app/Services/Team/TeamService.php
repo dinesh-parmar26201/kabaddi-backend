@@ -2,6 +2,7 @@
 
 namespace App\Services\Team;
 
+use App\Enums\MatchStatus;
 use Exception;
 use App\Models\Team;
 use Illuminate\Support\Facades\Auth;
@@ -169,11 +170,20 @@ class TeamService implements TeamServiceInterface
     public function getMatches(int $teamId): LengthAwarePaginator
     {
         $team = Team::findOrFail($teamId);
+        $matches = $team->matches();
+
+        if (strtolower(request()->get('status')) == 'live') {
+            $matches->whereIn('status', MatchStatus::isLive());
+        } else if (strtolower(request()->get('status')) == MatchStatus::UPCOMING->value) {
+            $matches->where('status', MatchStatus::UPCOMING->value);
+        } else if (strtolower(request()->get('status')) == MatchStatus::COMPLETED->value) {
+            $matches->where('status', MatchStatus::COMPLETED->value);
+        }
 
         $perPage = (int) request()->get('per_page', 15);
         $perPage = $perPage > 0 ? $perPage : 15;
 
-        return $team->matches()->latest()->paginate($perPage);
+        return $matches->paginate($perPage);
     }
 
     public function removePlayer(int $teamId, int $playerId): void

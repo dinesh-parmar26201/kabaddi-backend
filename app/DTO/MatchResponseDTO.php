@@ -31,6 +31,7 @@ class MatchResponseDTO
             'stage' => $match->stage,
             'current raid' => $match->raids()->latest()->first() ? RaidResponseDTO::fromModel($match->raids()->latest()->first()) : null,
             'created_by' => $match->created_by ? UserResponseDTO::fromModel($match->creator) : null,
+            'is_fixture' => $match->is_fixture,
         ];
 
         if (in_array('teams', $includes)) {
