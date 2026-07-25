@@ -24,6 +24,7 @@ class UpdateMatchRequest extends FormRequest
             'toss_decision' => 'nullable|string',
             'tournament_match_no' => 'nullable|integer',
             'stage' => 'nullable|string|in:League Match,Knockout Match,Quarterfinal,Semi Final,Final',
+            'is_fixture' => 'nullable|boolean',
         ];
     }
 }

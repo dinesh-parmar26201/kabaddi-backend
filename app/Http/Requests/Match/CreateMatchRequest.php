@@ -32,6 +32,7 @@ class CreateMatchRequest extends FormRequest
             'toss_winner_team_id' => 'nullable|exists:teams,id',
             'toss_decision' => 'nullable|string',
             'stage' => 'nullable|string|in:League Match,Knockout Match,Quarterfinal,Semi Final,Final',
+            'is_fixture' => 'nullable|boolean'
         ];
     }
 

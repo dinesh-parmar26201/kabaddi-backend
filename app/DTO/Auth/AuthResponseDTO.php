@@ -14,7 +14,7 @@ class AuthResponseDTO
         return [
             'access_token' => $token,
             'user' => UserResponseDTO::make($user),
-            'is_new' => is_null($user->name),
+            'is_new' => is_null($user->fullname),
         ];
     }
 }

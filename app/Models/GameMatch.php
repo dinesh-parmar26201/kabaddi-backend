@@ -29,10 +29,12 @@ class GameMatch extends Model
         'created_by',
         'winner_team_id',
         'stage',
+        'is_fixture',
     ];
 
     protected $casts = [
         'status' => MatchStatus::class,
+        'is_fixture' => 'boolean',
     ];
 
     public function teams()

@@ -17,6 +17,7 @@ class TournamentResponseDTO
             'age_group' => $tournament->age_group,
             'banner' => $tournament->banner ? asset('storage/' . $tournament->banner) : null,
             'ground' => $tournament->ground,
+            'ground_type' => $tournament->ground_type,
             'organizer' => [
                 'name' => $tournament->organizer_name,
                 'phone' => $tournament->organizer_phone,

@@ -106,11 +106,17 @@ class TournamentController extends Controller
     {
         $this->authorize('view', Tournament::class);
 
-        $teams = $this->service->getTeams($id);
+        $perPage = (int) request()->get('per_page', 15);
+        $perPage = $perPage > 0 ? $perPage : 15;
+        $teams = $this->service->getTeams($id, $perPage);
+
+        $teams->getCollection()->transform(function ($team) {
+            return TeamResponseDTO::fromModel($team);
+        });
 
         return response()->json([
             'message' => 'Tournament teams retrieved successfully',
-            'data' => TeamResponseDTO::fromModels($teams)
+            'data' => $teams
         ]);
     }
 
@@ -118,10 +124,9 @@ class TournamentController extends Controller
     {
         $this->authorize('view', Tournament::class);
 
-        $tournament = Tournament::findOrFail($id);
         $perPage = (int) request()->get('per_page', 15);
         $perPage = $perPage > 0 ? $perPage : 15;
-        $matches = $tournament->matches()->latest()->paginate($perPage);
+        $matches = $this->service->getMatches($id, $perPage);
 
         $matches->getCollection()->transform(function ($match) {
             return MatchResponseDTO::fromModel($match, ['teams', 'raids', 'teamBreakdowns']);

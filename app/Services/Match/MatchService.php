@@ -45,6 +45,7 @@ class MatchService implements MatchServiceInterface
             'toss_decision' => $request->input('toss_decision'),
             'stage' => $request->input('stage'),
             'created_by' => $request->user()->id,
+            'is_fixture' => $request->input('is_fixture') ?? false,
         ]);
 
         if ($request->getTeamA() && $request->getTeamB()) {
@@ -89,6 +90,17 @@ class MatchService implements MatchServiceInterface
         }
         $data['status'] = $status;
 
+        $isFixture = $data['is_fixture'] ?? $match->is_fixture;
+        if ($isFixture) {
+            $data['is_fixture'] = $isFixture;
+        } else {
+            if ($status == MatchStatus::UPCOMING->value) {
+                $data['is_fixture'] = true;
+            } else {
+                $data['is_fixture'] = false;
+            }
+        }
+
         if (isset($data['tournament_match_no'])) {
             $data['tournament_match_no'] = $this->getTournamentMatchNo($match->tournament_id, $data['tournament_match_no']);
         }
@@ -128,12 +140,12 @@ class MatchService implements MatchServiceInterface
         } else {
             $query = GameMatch::where('created_by', Auth::id());
         }
-        
-        if (request()->get('status') == 'live') {
+
+        if (strtolower(request()->get('status')) == 'live') {
             $query->whereIn('status', MatchStatus::isLive());
-        } else if (request()->get('status') == MatchStatus::UPCOMING->value) {
+        } else if (strtolower(request()->get('status')) == MatchStatus::UPCOMING->value) {
             $query->where('status', MatchStatus::UPCOMING->value);
-        } else if (request()->get('status') == MatchStatus::COMPLETED->value) {
+        } else if (strtolower(request()->get('status')) == MatchStatus::COMPLETED->value) {
             $query->where('status', MatchStatus::COMPLETED->value);
         }
 
@@ -159,7 +171,7 @@ class MatchService implements MatchServiceInterface
                     });
             });
         }
-        
+
         $perPage = (int) request()->get('per_page', 15);
         $perPage = $perPage > 0 ? $perPage : 15;
         return $query->latest()->paginate($perPage);
@@ -228,6 +240,11 @@ class MatchService implements MatchServiceInterface
                 ->where('user_id', $request->getCaptainId())
                 ->update(['is_captain' => true]);
         }
+
+        $match->update([
+            'is_fixture' => false,
+        ]);
+
         return $match->load('matchPlayers');
     }
 
