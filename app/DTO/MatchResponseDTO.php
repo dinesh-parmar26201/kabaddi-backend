@@ -48,6 +48,10 @@ class MatchResponseDTO
             $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
         }
 
+        if (in_array('tournament', $includes)) {
+            $data['tournament'] = TournamentResponseDTO::fromModel($match->tournament);
+        }
+
         return $data;
     }
 

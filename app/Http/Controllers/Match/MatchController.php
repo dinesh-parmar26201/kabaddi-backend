@@ -68,7 +68,7 @@ class MatchController extends Controller
                 'data' =>
                 MatchResponseDTO::fromModel(
                     $this->matchService->detail($id),
-                    ['teams', 'raids', 'teamBreakdowns']
+                    ['teams', 'raids', 'teamBreakdowns', 'tournament']
                 )
             ]
         );

@@ -179,7 +179,7 @@ class MatchService implements MatchServiceInterface
 
     public function detail(int $matchId)
     {
-        return GameMatch::with(['teams'])->findOrFail($matchId);
+        return GameMatch::with(['teams', 'tournament'])->findOrFail($matchId);
     }
 
     public function delete(int $matchId)

@@ -10,9 +10,8 @@ use App\Enums\MatchStatus;
 
 class PlayerStatsService implements PlayerStatsServiceInterface
 {
-    public function getPlayerStats(): array
+    public function getPlayerStats(int $playerId): array
     {
-        $playerId = auth()->id();
         // Total matches played
         $totalMatches = MatchPlayer::where('user_id', $playerId)->count();
 

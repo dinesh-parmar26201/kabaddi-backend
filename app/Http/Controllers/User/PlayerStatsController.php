@@ -16,7 +16,18 @@ class PlayerStatsController extends Controller
 
     public function show()
     {
-        $stats = $this->service->getPlayerStats();
+        $id = auth()->id();
+        $stats = $this->service->getPlayerStats($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $stats
+        ]);
+    }
+
+    public function showById($id)
+    {
+        $stats = $this->service->getPlayerStats($id);
 
         return response()->json([
             'success' => true,
