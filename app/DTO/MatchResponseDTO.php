@@ -43,13 +43,17 @@ class MatchResponseDTO
         }
 
         if (in_array('teamBreakdowns', $includes)) {
+            if (!$match->raids()->exists()) {
+                $data['teamBreakdowns'] = [];
+                return $data;
+            }
             $scoreService = app(ScoreboardServiceInterface::class);
             $scoreboard = $scoreService->getMatchScoreboard($match->id);
             $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
         }
 
         if (in_array('tournament', $includes)) {
-            $data['tournament'] = TournamentResponseDTO::fromModel($match->tournament);
+            $data['tournament'] = $match->tournament ? TournamentResponseDTO::fromModel($match->tournament) : null;
         }
 
         return $data;
@@ -57,7 +61,9 @@ class MatchResponseDTO
 
     public static function teams(GameMatch $match)
     {
-
+        if (!$match->teams()->exists()) {
+            return [];
+        }
         return $match->teams->map(function ($team) use ($match) {
             return MatchTeamResponseDTO::fromModel($team->team, $match, $team);
         });
@@ -79,7 +85,9 @@ class MatchResponseDTO
 
     public static function raids(GameMatch $match)
     {
-
+        if (!$match->raids()->exists()) {
+            return [];
+        }
         return $match->raids->map(function ($raid) use ($match) {
             return RaidResponseDTO::fromModel($raid);
         });

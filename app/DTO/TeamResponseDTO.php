@@ -50,10 +50,18 @@ class TeamResponseDTO
         ];
 
         if (in_array('players', $includes)) {
+            if (!$team->players()->exists()) {
+                $data['players'] = [];
+                return $data;
+            }
             $data['players'] = UserResponseDTO::collection($team->players);
         }
 
         if (in_array('matches', $includes)) {
+            if (!$team->matches()->exists()) {
+                $data['matches'] = [];
+                return $data;
+            }
             $data['matches'] = MatchResponseDTO::collection($team->matches);
         }
 
