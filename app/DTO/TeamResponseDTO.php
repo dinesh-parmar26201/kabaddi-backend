@@ -52,17 +52,17 @@ class TeamResponseDTO
         if (in_array('players', $includes)) {
             if (!$team->players()->exists()) {
                 $data['players'] = [];
-                return $data;
+            } else {
+                $data['players'] = UserResponseDTO::collection($team->players);
             }
-            $data['players'] = UserResponseDTO::collection($team->players);
         }
 
         if (in_array('matches', $includes)) {
             if (!$team->matches()->exists()) {
                 $data['matches'] = [];
-                return $data;
+            } else {
+                $data['matches'] = MatchResponseDTO::collection($team->matches);
             }
-            $data['matches'] = MatchResponseDTO::collection($team->matches);
         }
 
         return $data;
