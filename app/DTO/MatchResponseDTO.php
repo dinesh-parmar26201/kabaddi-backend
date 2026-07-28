@@ -45,11 +45,11 @@ class MatchResponseDTO
         if (in_array('teamBreakdowns', $includes)) {
             if (!$match->raids()->exists()) {
                 $data['teamBreakdowns'] = [];
-                return $data;
+            } else {
+                $scoreService = app(ScoreboardServiceInterface::class);
+                $scoreboard = $scoreService->getMatchScoreboard($match->id);
+                $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
             }
-            $scoreService = app(ScoreboardServiceInterface::class);
-            $scoreboard = $scoreService->getMatchScoreboard($match->id);
-            $data['teamBreakdowns'] = $scoreboard->teamBreakdowns ?? [];
         }
 
         if (in_array('tournament', $includes)) {
