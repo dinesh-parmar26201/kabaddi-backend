@@ -21,7 +21,7 @@ class Team extends Model
 
     public function players()
     {
-        return $this->belongsToMany(User::class, 'team_user')->wherePivot('is_captain', false);
+        return $this->belongsToMany(User::class, 'team_user');
     }
 
     public function tournaments()
