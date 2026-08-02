@@ -65,10 +65,11 @@ class UserService implements UserServiceInterface
 
         return User::where('fullname', 'LIKE', '%' . $searchTerm . '%')
             ->orWhere('phone', 'LIKE', '%' . $searchTerm . '%')
-            ->orWhere('city', 'LIKE', '%' . $searchTerm . '%')
-            ->orWhere('state', 'LIKE', '%' . $searchTerm . '%')
-            ->orWhere('country', 'LIKE', '%' . $searchTerm . '%')
-            ->orWhere('jersey_no', 'LIKE', '%' . $searchTerm . '%')
+            ->orWhere('id', 'LIKE', '%' . $searchTerm . '%')
+            // ->orWhere('city', 'LIKE', '%' . $searchTerm . '%')
+            // ->orWhere('state', 'LIKE', '%' . $searchTerm . '%')
+            // ->orWhere('country', 'LIKE', '%' . $searchTerm . '%')
+            // ->orWhere('jersey_no', 'LIKE', '%' . $searchTerm . '%')
             ->paginate($perPage);
     }
 
