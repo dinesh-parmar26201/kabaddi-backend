@@ -185,7 +185,7 @@ class RaidService implements RaidServiceInterface
                     ]);
 
                 // Defending team revives 2 players
-                $this->revivePlayers($match, $defendingTeamId, 2);
+                $this->revivePlayers($match, $defendingTeamId, 1);
             }
 
             if ($pointsEarned > 0) {
