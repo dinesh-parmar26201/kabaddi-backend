@@ -2,7 +2,9 @@
 
 namespace App\Services\Event;
 
+use App\Enums\EventType;
 use App\Models\EventLog;
+use App\Models\MatchPlayer;
 use App\Services\Event\EventServiceInterface;
 use App\Services\Raid\RaidServiceInterface;
 use App\Services\Scoreboard\ScoreboardServiceInterface;
@@ -82,6 +84,28 @@ class EventService implements EventServiceInterface
             $raidService = app(RaidServiceInterface::class);
             $raidService->undoLastRaid($event->match_id);
         }
+
+        if ($event->type->value === EventType::CARD->value) {
+            $matchPlayer = MatchPlayer::where('match_id', $event->match_id)
+                ->where('user_id', $event->user_id)
+                ->first();
+            if ($event->card_type == "green_card") {
+                $matchPlayer->update([
+                    'green_card' => 0,
+                ]);
+            }
+            if ($event->card_type == "yellow_card") {
+                $matchPlayer->update([
+                    'yellow_card' => 0,
+                ]);
+            }
+            if ($event->card_type == "red_card") {
+                $matchPlayer->update([
+                    'red_card' => 0,
+                ]);
+            }
+        }
+
         $event->delete();
     }
 }

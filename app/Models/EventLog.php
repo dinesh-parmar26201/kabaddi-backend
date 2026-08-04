@@ -16,7 +16,9 @@ class EventLog extends Model
         'half',
         'raid_number',
         'summary',
-        'score_after_raid'
+        'score_after_raid',
+        'user_id',
+        'card_type'
     ];
 
     protected $casts = [
