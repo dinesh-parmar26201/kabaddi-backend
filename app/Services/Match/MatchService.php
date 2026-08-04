@@ -317,24 +317,43 @@ class MatchService implements MatchServiceInterface
 
     public function updateCard(UpdateMatchPlayerCardRequest $request, int $matchId)
     {
+        $teamId = $request->input('team_id');
+        $userId = $request->input('player_id');
+        $summary = $cardType = "";
+
         $matchPlayer = MatchPlayer::where('match_id', $matchId)
-            ->where('team_id', $request->input('team_id'))
-            ->where('user_id', $request->input('player_id'))
+            ->where('team_id', $teamId)
+            ->where('user_id', $userId)
             ->firstOrFail();
 
         if ($request->has('green_card')) {
             $matchPlayer->green_card = $request->input('green_card');
+            $summary = "Green card to player";
+            $cardType = "green_card";
         }
 
         if ($request->has('red_card')) {
             $matchPlayer->red_card = $request->input('red_card');
+            $summary = "Red card to player";
+            $cardType = "red_card";
         }
 
         if ($request->has('yellow_card')) {
             $matchPlayer->yellow_card = $request->input('yellow_card');
+            $summary = "Yellow card to player";
+            $cardType = "yellow_card";
         }
 
         $matchPlayer->save();
+
+        EventLog::create([
+            'match_id' => $matchId,
+            'user_id' => $userId,
+            'type' => 'card',
+            'team_id' => $teamId,
+            'summary' => $summary,
+            'card_type' => $cardType
+        ]);
 
         return GameMatch::with(['teams'])->findOrFail($matchId);
     }

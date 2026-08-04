@@ -12,6 +12,7 @@ enum EventType: string
     case LINEOUT = 'lineout';
     case TECHNICAL_POINT = 'technical_point';
     case SKIP = 'skip';
+    case CARD = 'card';
 
     public static function values(): array
     {
