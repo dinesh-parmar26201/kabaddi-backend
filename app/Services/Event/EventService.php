@@ -85,7 +85,7 @@ class EventService implements EventServiceInterface
             $raidService->undoLastRaid($event->match_id);
         }
 
-        if ($event->type->value === EventType::CARD->value) {
+        if ($event->type && ($event->type->value === EventType::CARD->value)) {
             $matchPlayer = MatchPlayer::where('match_id', $event->match_id)
                 ->where('user_id', $event->user_id)
                 ->first();
