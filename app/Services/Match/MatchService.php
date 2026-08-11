@@ -2,11 +2,13 @@
 
 namespace App\Services\Match;
 
+use App\Enums\EventType;
 use App\Enums\MatchStatus;
 use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
 use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
+use App\Http\Requests\Match\UpdateMatchPlayerSubstitutesRequest;
 use App\Models\EventLog;
 use App\Models\GameMatch;
 use App\Models\MatchPlayer;
@@ -439,5 +441,24 @@ class MatchService implements MatchServiceInterface
             ->firstOrFail();
 
         return $scoreboardService->getMatchPlayerStats($match, $matchPlayer);
+    }
+
+    public function updateSubstitutes(UpdateMatchPlayerSubstitutesRequest $request, int $matchId)
+    {
+        foreach ($request->getSubPlayers() as $player) {
+            MatchPlayer::where('match_id', $matchId)
+                ->where('user_id', $player['id'])
+                ->update([
+                    'is_substitute' => $player['is_substitute'] ?? false,
+                ]);
+        }
+        EventLog::create([
+            'match_id' => $matchId,
+            'type' => EventType::UPDATE_SUBSTITUTES->value,
+            'summary' => "Players substituted",
+            'payload' => $request->getSubPlayers(),
+        ]);
+
+        return $this->detail($matchId);
     }
 }

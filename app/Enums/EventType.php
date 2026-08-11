@@ -13,6 +13,7 @@ enum EventType: string
     case TECHNICAL_POINT = 'technical_point';
     case SKIP = 'skip';
     case CARD = 'card';
+    case UPDATE_SUBSTITUTES = 'update_substitutes';
 
     public static function values(): array
     {

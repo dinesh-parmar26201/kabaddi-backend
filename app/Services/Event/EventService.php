@@ -106,6 +106,19 @@ class EventService implements EventServiceInterface
             }
         }
 
+        if ($event->type && ($event->type->value === EventType::UPDATE_SUBSTITUTES->value)) {
+            $subPlayers = $event->payload;
+
+            foreach ($subPlayers as $subPlayer) {
+                $matchPlayer = MatchPlayer::where('match_id', $event->match_id)
+                    ->where('user_id', $subPlayer['id'])
+                    ->first();
+                $matchPlayer->update([
+                    'is_substitute' => !$subPlayer['is_substitute'],
+                ]);
+            }
+        }
+
         $event->delete();
     }
 }

@@ -18,12 +18,14 @@ class EventLog extends Model
         'summary',
         'score_after_raid',
         'user_id',
-        'card_type'
+        'card_type',
+        'payload'
     ];
 
     protected $casts = [
         'type' => EventType::class,
         'score_after_raid' => 'array',
+        'payload' => 'array',
     ];
 
     protected $hidden = ['raid'];
