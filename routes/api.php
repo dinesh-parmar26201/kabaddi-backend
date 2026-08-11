@@ -64,6 +64,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('{id}/play-by-play', [MatchController::class, 'playByPlay']);
         Route::get('{id}/best-performance', [MatchController::class, 'bestPerformance']);
         Route::get('{id}/player-stats/{player_id}', [MatchController::class, 'playerStats']);
+        Route::post('{id}/update-substitutes', [MatchController::class, 'updateSubstitutes']);
     });
 
     Route::prefix('matches/{match}')->group(function () {

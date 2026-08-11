@@ -6,7 +6,7 @@ use App\Http\Requests\Match\CreateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
 use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
-
+use App\Http\Requests\Match\UpdateMatchPlayerSubstitutesRequest;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface MatchServiceInterface
@@ -26,4 +26,5 @@ interface MatchServiceInterface
     public function playByPlay(int $matchId);
     public function bestPerformance(int $matchId);
     public function playerStats(int $matchId, int $playerId);
+    public function updateSubstitutes(UpdateMatchPlayerSubstitutesRequest $request, int $matchId);
 }

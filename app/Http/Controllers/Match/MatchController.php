@@ -11,6 +11,7 @@ use App\Http\Requests\Match\UpdateMatchRequest;
 use App\Http\Requests\Match\UpdateMatchTeamCourtRequest;
 use App\Http\Requests\Match\UpdateMatchTeamPlayersRequest;
 use App\Http\Requests\Match\UpdateMatchPlayerCardRequest;
+use App\Http\Requests\Match\UpdateMatchPlayerSubstitutesRequest;
 use App\Services\Match\MatchServiceInterface;
 use Illuminate\Http\Request;
 
@@ -178,6 +179,16 @@ class MatchController extends Controller
         return response()->json([
             'message' => 'Match player stats fetched successfully',
             'data' => $data
+        ]);
+    }
+
+    public function updateSubstitutes(UpdateMatchPlayerSubstitutesRequest $request, int $matchId)
+    {
+        $match = $this->matchService->updateSubstitutes($request, $matchId);
+
+        return response()->json([
+            'message' => 'Match substitutes updated successfully',
+            'data' => MatchResponseDTO::fromModel($match, ['teams'])
         ]);
     }
 }
