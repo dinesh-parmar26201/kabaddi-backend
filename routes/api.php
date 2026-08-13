@@ -12,9 +12,9 @@ use App\Http\Controllers\Tournament\TournamentController;
 use App\Http\Controllers\User\PlayerStatsController;
 
 Route::post('login', [AuthController::class, 'login']);
+Route::post('refresh', [AuthController::class, 'refresh']);
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('refresh', [AuthController::class, 'refresh']);
 
     Route::prefix('players')->group(function () {
         Route::post('update', [UserController::class, 'update']);

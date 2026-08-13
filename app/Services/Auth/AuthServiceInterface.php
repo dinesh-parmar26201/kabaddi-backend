@@ -8,7 +8,7 @@ interface AuthServiceInterface
 {
     public function login(LoginRequest $request): array;
 
-    public function refresh(): array;
+    public function refresh();
 
     public function logout(): void;
 }
