@@ -78,7 +78,7 @@ class MatchController extends Controller
     public function destroy(int $id)
     {
         $this->matchService->delete($id);
-        return response()->json(['message' => 'Match cancelled']);
+        return response()->json(['message' => 'Match deleted successfully']);
     }
 
     public function toss(TossRequest $request, int $id)

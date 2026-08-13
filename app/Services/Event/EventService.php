@@ -113,9 +113,17 @@ class EventService implements EventServiceInterface
                 $matchPlayer = MatchPlayer::where('match_id', $event->match_id)
                     ->where('user_id', $subPlayer['id'])
                     ->first();
-                $matchPlayer->update([
-                    'is_substitute' => !$subPlayer['is_substitute'],
-                ]);
+                if ($subPlayer['is_substitute']) {
+                    $matchPlayer->update([
+                        'is_substitute' => false,
+                        'is_playing' => true,
+                    ]);
+                } else {
+                    $matchPlayer->update([
+                        'is_substitute' => true,
+                        'is_playing' => false,
+                    ]);
+                }
             }
         }
 

@@ -13,6 +13,10 @@ use App\Models\EventLog;
 use App\Models\GameMatch;
 use App\Models\MatchPlayer;
 use App\Models\MatchTeam;
+use App\Models\Raid;
+use App\Models\RaidDefender;
+use App\Models\RaidDefenderLineout;
+use App\Models\RaidTackler;
 use App\Models\TeamPlayer;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -186,10 +190,27 @@ class MatchService implements MatchServiceInterface
 
     public function delete(int $matchId)
     {
-        $match = GameMatch::findOrFail($matchId);
-        $match->update(['status' => 'cancelled']);
+        return DB::transaction(function () use ($matchId) {
+            $match = GameMatch::findOrFail($matchId);
 
-        return true;
+            $raidIds = Raid::where('match_id', $matchId)->pluck('id');
+
+            if ($raidIds->isNotEmpty()) {
+                RaidDefender::whereIn('raid_id', $raidIds)->delete();
+                RaidTackler::whereIn('raid_id', $raidIds)->delete();
+                RaidDefenderLineout::whereIn('raid_id', $raidIds)->delete();
+            }
+
+            RaidDefenderLineout::where('match_id', $matchId)->delete();
+            EventLog::where('match_id', $matchId)->delete();
+            Raid::where('match_id', $matchId)->delete();
+            MatchPlayer::where('match_id', $matchId)->delete();
+            MatchTeam::where('match_id', $matchId)->delete();
+
+            $match->delete();
+
+            return true;
+        });
     }
 
     public function toss(int $matchId, array $data)
@@ -446,11 +467,22 @@ class MatchService implements MatchServiceInterface
     public function updateSubstitutes(UpdateMatchPlayerSubstitutesRequest $request, int $matchId)
     {
         foreach ($request->getSubPlayers() as $player) {
-            MatchPlayer::where('match_id', $matchId)
+            if($player['is_substitute']){
+                MatchPlayer::where('match_id', $matchId)
                 ->where('user_id', $player['id'])
                 ->update([
-                    'is_substitute' => $player['is_substitute'] ?? false,
+                    'is_playing' => false,
+                    'is_substitute' => true,
                 ]);
+            }
+            else{
+                MatchPlayer::where('match_id', $matchId)
+                ->where('user_id', $player['id'])
+                ->update([
+                    'is_playing' => true,
+                    'is_substitute' => false,
+                ]);
+            }
         }
         EventLog::create([
             'match_id' => $matchId,
