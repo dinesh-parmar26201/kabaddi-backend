@@ -25,21 +25,25 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    public function refresh(): array
+    public function refresh()
     {
-        $user = Auth::user();
+        try {
+            $user = auth('api')->user();
 
-        if ($user) {
-            $user->token()->revoke();
-            $token = $user->createToken('mobile-auth')->accessToken;
-
-            return [
-                'user' => $user,
-                'token' => $token,
-            ];
+            return response()->json([
+                'message' => 'Token status retrieved successfully',
+                'data' => [
+                    'is_valid' => $user !== null,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Token status retrieved successfully',
+                'data' => [
+                    'is_valid' => false,
+                ],
+            ]);
         }
-
-        throw new \Exception('Unauthenticated', 401);
     }
 
     public function logout(): void
