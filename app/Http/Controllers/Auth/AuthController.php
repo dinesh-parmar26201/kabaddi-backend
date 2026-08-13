@@ -21,6 +21,14 @@ class AuthController extends Controller
         return response()->json(["message" => "Login successful", "data" => $response]);
     }
 
+    public function refresh()
+    {
+        $result = $this->authService->refresh();
+        $response = AuthResponseDTO::make($result);
+
+        return response()->json(["message" => "Token refreshed successfully", "data" => $response]);
+    }
+
     public function logout()
     {
         $this->authService->logout();
