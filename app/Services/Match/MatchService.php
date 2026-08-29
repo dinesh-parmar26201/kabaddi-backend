@@ -409,7 +409,7 @@ class MatchService implements MatchServiceInterface
         $allPlayersData = $this->scorecard($matchId);
 
         $players = collect($allPlayersData);
-
+        
         // Best Raider: sort by raidPoints DESC, then by Raid Strike Rate DESC as tiebreaker
         // Raid Strike Rate = (raidPoints + bonusPoints) / totalRaids
         $bestRaider = $players->sortBy(function ($player) {
@@ -423,7 +423,20 @@ class MatchService implements MatchServiceInterface
         })->first();
 
         $bestDefender = $players->sortByDesc('tacklePoints')->first();
-        $mvp = $players->sortByDesc('totalPoints')->first();
+
+        // MVP Score = Raid Points + (Tackle Points × 2) + Successful Raids + Successful Tackles − Unsuccessful Raids − Unsuccessful Tackles
+        $mvp = $players->sortBy(function ($player) {
+            $raidPoints = $player->raidPoints ?? 0;
+            $tacklePoints = $player->tacklePoints ?? 0;
+            $successfulRaids = $player->successfulRaids ?? 0;
+            $successfulTackles = $player->successfulTackles ?? 0;
+            $unsuccessfulRaids = $player->unsuccessfulRaids ?? 0;
+            $unsuccessfulTackles = $player->unsuccessfulTackles ?? 0;
+
+            $mvpScore = $raidPoints + ($tacklePoints * 2) + $successfulRaids + $successfulTackles - $unsuccessfulRaids - $unsuccessfulTackles;
+
+            return -$mvpScore;
+        })->first();
 
         return [
             'bestRaider' => $bestRaider,

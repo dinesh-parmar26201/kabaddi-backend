@@ -79,6 +79,10 @@ class ScoreboardService implements ScoreboardServiceInterface
                 'superTackles' => 0,
                 'defenderLineoutPoints' => 0,
                 'totalRaids'   => 0,
+                'successfulRaids'   => 0,
+                'unsuccessfulRaids' => 0,
+                'successfulTackles' => 0,
+                'unsuccessfulTackles' => 0,
             ];
         }
 
@@ -96,6 +100,11 @@ class ScoreboardService implements ScoreboardServiceInterface
             // Count total raids per raider
             if (isset($playerStatsMap[$raid->raider_id])) {
                 $playerStatsMap[$raid->raider_id]['totalRaids']++;
+                if ($raid->outcome === 'successful') {
+                    $playerStatsMap[$raid->raider_id]['successfulRaids']++;
+                } elseif ($raid->outcome === 'unsuccessful') {
+                    $playerStatsMap[$raid->raider_id]['unsuccessfulRaids']++;
+                }
             }
 
             $raidingTeamId   = $raid->raid_team_id;
@@ -124,6 +133,13 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                     if (isset($playerStatsMap[$raid->raider_id])) {
                         $playerStatsMap[$raid->raider_id]['raidPoints'] += $defenderCount;
+                    }
+
+                    // Defenders touched count as unsuccessful tackle
+                    foreach ($raid->defenders as $defender) {
+                        if (isset($playerStatsMap[$defender->user_id])) {
+                            $playerStatsMap[$defender->user_id]['unsuccessfulTackles']++;
+                        }
                     }
                 }
 
@@ -162,6 +178,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                     $tackler = $raid->tacklers;
                     if (isset($playerStatsMap[$tackler->user_id])) {
                         $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
+                        $playerStatsMap[$tackler->user_id]['successfulTackles'] += 1;
                     }
                 }
 
@@ -209,6 +226,7 @@ class ScoreboardService implements ScoreboardServiceInterface
                         if (isset($playerStatsMap[$tackler->user_id])) {
                             $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
                             $playerStatsMap[$tackler->user_id]['superTackles'] += 1;
+                            $playerStatsMap[$tackler->user_id]['successfulTackles'] += 1;
                             $teamsMap[$defendingTeamId]['superTackles'] += 1;
                         }
 
@@ -218,6 +236,7 @@ class ScoreboardService implements ScoreboardServiceInterface
 
                         if (isset($playerStatsMap[$tackler->user_id])) {
                             $playerStatsMap[$tackler->user_id]['tacklePoints'] += 1;
+                            $playerStatsMap[$tackler->user_id]['successfulTackles'] += 1;
                         }
                     }
                 }
@@ -309,6 +328,13 @@ class ScoreboardService implements ScoreboardServiceInterface
                 //+ $player['superRaids']
                 + $player['superTackles'];
 
+            $mvpScore = $player['raidPoints']
+                + ($player['tacklePoints'] * 2)
+                + $player['successfulRaids']
+                + $player['successfulTackles']
+                - $player['unsuccessfulRaids']
+                - $player['unsuccessfulTackles'];
+
             $playerStats[] = new PlayerStatsDTO(
                 playerId: $player['playerId'],
                 playerName: $player['playerName'],
@@ -321,7 +347,12 @@ class ScoreboardService implements ScoreboardServiceInterface
                 bonusPoints: $player['bonusPoints'],
                 // defenderLineoutPoints: $player['defenderLineoutPoints'],
                 totalRaids: $player['totalRaids'],
-                totalPoints: $total
+                totalPoints: $total,
+                successfulRaids: $player['successfulRaids'],
+                unsuccessfulRaids: $player['unsuccessfulRaids'],
+                successfulTackles: $player['successfulTackles'],
+                unsuccessfulTackles: $player['unsuccessfulTackles'],
+                mvpScore: $mvpScore
             );
         }
 
