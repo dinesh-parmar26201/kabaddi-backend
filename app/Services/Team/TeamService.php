@@ -208,6 +208,7 @@ class TeamService implements TeamServiceInterface
             'matches as total_matches_played' => function ($query) {
                 $query->where('status', 'completed');
             },
+            'matches as total_all_matches',
             'matches as total_matches_won' => function ($query) use ($id) {
                 $query->where('status', 'completed')
                     ->where('winner_team_id', $id);

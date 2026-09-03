@@ -22,6 +22,7 @@ class TeamResponseDTO
             'matches as total_matches_played' => function ($query) {
                 $query->where('status', 'completed');
             },
+            'matches as total_all_matches',
             'matches as total_matches_won' => function ($query) use ($team) {
                 $query->where('status', 'completed')
                     ->where('winner_team_id', $team->id);
@@ -43,6 +44,7 @@ class TeamResponseDTO
             'total_raiders' => $stats->total_raiders,
             'total_defenders' => $stats->total_defenders,
             'total_all_rounders' => $stats->total_all_rounders,
+            'total_all_matches' => $stats->total_all_matches,
             'total_matches_played' => $stats->total_matches_played,
             'total_matches_won' => $stats->total_matches_won,
             'win_percentage' => $stats->win_percentage,
